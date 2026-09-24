@@ -1,15 +1,15 @@
-name = "moonbitstack/CHANGE-ME"
+name = "moonbitstack/moontoken"
 
 version = "0.1.0"
 
 readme = "README.md"
 
-repository = "https://github.com/moonbitstack/CHANGE-ME"
+repository = "https://github.com/moonbitstack/moontoken"
 
 license = "Apache-2.0"
 
-keywords = [ "moonbit" ]
+keywords = [ "tokenizer", "bpe", "sentencepiece", "llm", "moonbit" ]
 
-description = "One sentence saying what this is and what it is not."
+description = "moontoken — tokenizers for MoonBit: byte-level BPE and the SentencePiece shape, over a vocabulary you supply."
 
 preferred_target = "wasm-gc"
