@@ -11,3 +11,5 @@ license = "Apache-2.0"
 keywords = [ "tokenizer", "bpe", "sentencepiece", "llm", "moonbit" ]
 
 description = "moontoken — tokenizers for MoonBit: byte-level BPE and the SentencePiece shape, over a vocabulary you supply."
+
+source = "src"
