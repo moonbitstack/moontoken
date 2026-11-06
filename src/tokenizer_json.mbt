@@ -350,6 +350,7 @@ pub fn Tokenizer::of(json : Json) -> Tokenizer raise @refused.Refused {
       Tokenizer::new(model=encoder, specials~, policy=Allow)
     }
     "Unigram" => {
+      let byte_fallback = flag_of(model, "byte_fallback", false)
       let items : Array[@piece.Piece] = []
       let raw = array_of(model, "vocab")
       for i = 0; i < raw.length(); i = i + 1 {
@@ -365,10 +366,21 @@ pub fn Tokenizer::of(json : Json) -> Tokenizer raise @refused.Refused {
                 Some(number) => number
                 None => 0.0
               }
+              let bytes = @utf8.encode(text)
+              // A `<0xNN>` spelling is how the file holds one byte of a
+              // character the vocabulary has no piece for. It is a byte, not
+              // text: it never takes part in segmentation, and it is only
+              // reachable through the fallback.
+              let kind = if byte_fallback &&
+                @piece.byte_of_piece(bytes) is Some(_) {
+                @piece.RawByte
+              } else {
+                @piece.Normal
+              }
               items.push({
-                text: @utf8.encode(text),
+                text: bytes,
                 score: Float::from_double(score),
-                kind: @piece.Normal,
+                kind,
               })
             } else {
               raise @refused.Malformed("a piece is not text and a score", i)
@@ -380,11 +392,7 @@ pub fn Tokenizer::of(json : Json) -> Tokenizer raise @refused.Refused {
       if unk_id >= 0 && unk_id < items.length() {
         items[unk_id] = { ..items[unk_id], kind: @piece.Unknown, }
       }
-      let pieces = @piece.Pieces::new(
-        items~,
-        unk_id~,
-        byte_fallback=flag_of(model, "byte_fallback", false),
-      )
+      let pieces = @piece.Pieces::new(items~, unk_id~, byte_fallback~)
       let normalizer = if stages.is_empty() {
         @normalizer.Normalizer::identity()
       } else {

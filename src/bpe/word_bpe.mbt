@@ -212,20 +212,23 @@ pub fn WordBpe::token_bytes(self : WordBpe, id : Int32) -> Bytes? {
 }
 
 ///|
-/// The tokens of one word.
-fn WordBpe::word_ids(self : WordBpe, word : Bytes) -> Array[Int32] {
+/// The tokens of one word, before the merges.
+///
+/// A character the vocabulary has no token for is spelled out in bytes when the
+/// model has a byte fallback, and stands in as the unknown token when it has
+/// one. A model with neither has nothing to say about that character, which is
+/// the one case where encoding fails on text that is otherwise fine.
+fn WordBpe::word_ids(
+  self : WordBpe,
+  word : Bytes,
+) -> Array[Int32] raise @refused.Refused {
   let ids : Array[Int32] = []
   if self.decoding == Alphabet {
     for i = 0; i < word.length(); i = i + 1 {
       let b = word[i].to_int() & 0xFF
       match self.chars.get(self.alphabet[b]) {
         Some(id) => ids.push(id)
-        None =>
-          if self.byte_fallback {
-            ids.push(self.byte_ids[b])
-          } else {
-            ids.push(self.unk_id)
-          }
+        None => ids.push(self.id_for_byte(b))
       }
     }
   } else {
@@ -236,10 +239,10 @@ fn WordBpe::word_ids(self : WordBpe, word : Bytes) -> Array[Int32] {
         None =>
           if self.byte_fallback {
             for byte in @utf8.encode(c.to_string())[:] {
-              ids.push(self.byte_ids[byte.to_int() & 0xFF])
+              ids.push(self.id_for_byte(byte.to_int() & 0xFF))
             }
           } else {
-            ids.push(self.unk_id)
+            ids.push(self.unknown())
           }
       }
     }
@@ -248,8 +251,38 @@ fn WordBpe::word_ids(self : WordBpe, word : Bytes) -> Array[Int32] {
 }
 
 ///|
+/// The token for one byte: the byte spelling when the model has one, and the
+/// unknown token otherwise.
+fn WordBpe::id_for_byte(
+  self : WordBpe,
+  b : Int32,
+) -> Int32 raise @refused.Refused {
+  if self.byte_fallback {
+    let id = self.byte_ids[b]
+    if id >= 0 {
+      return id
+    }
+  }
+  self.unknown()
+}
+
+///|
+/// The unknown token, which a model is allowed not to have.
+fn WordBpe::unknown(self : WordBpe) -> Int32 raise @refused.Refused {
+  if self.unk_id < 0 {
+    raise @refused.Absent(
+      "a character has no token and the model has no unknown",
+    )
+  }
+  self.unk_id
+}
+
+///|
 /// The tokens of one word, after the merges.
-fn WordBpe::merged(self : WordBpe, word : Bytes) -> Array[Int32] {
+fn WordBpe::merged(
+  self : WordBpe,
+  word : Bytes,
+) -> Array[Int32] raise @refused.Refused {
   if self.ignore_merges {
     match self.vocab.get(@utf8.decode_lossy(word[:])) {
       Some(id) => return [id]
@@ -324,7 +357,10 @@ pub fn WordBpe::encode(
 
 ///|
 /// The tokens of one word, without cutting it first.
-pub fn WordBpe::encode_word(self : WordBpe, word : StringView) -> Array[Int32] {
+pub fn WordBpe::encode_word(
+  self : WordBpe,
+  word : StringView,
+) -> Array[Int32] raise @refused.Refused {
   self.merged(@utf8.encode(word))
 }
 

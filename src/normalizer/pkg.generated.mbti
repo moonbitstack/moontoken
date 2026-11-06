@@ -32,9 +32,10 @@ pub struct Normalizer {
 }
 pub fn Normalizer::apply(Self, StringView) -> String raise @refused.Refused
 pub fn Normalizer::chain(Array[Stage]) -> Self
-pub fn Normalizer::drops_leading_space(Self) -> Bool
 pub fn Normalizer::identity() -> Self
 pub fn Normalizer::rule(spec~ : Spec, user_defined? : Array[Bytes], treat_whitespace_as_suffix? : Bool) -> Self raise @refused.Refused
+pub fn Normalizer::strips_every_leading_marker(Self) -> Bool
+pub fn Normalizer::strips_leading_marker(Self) -> Bool
 
 pub(all) struct Spec {
   name : String

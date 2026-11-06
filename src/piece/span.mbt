@@ -25,6 +25,17 @@ fn finish(
   let mut previous_was_unknown = false
   for span in spans {
     if span.id < 0 {
+      // Nothing in the vocabulary covers this character. A model that spells
+      // unknown text out in bytes still has an answer; one that reserved an
+      // unknown piece would have matched it and never reached here, so a model
+      // with neither has nothing to say.
+      if pieces.byte_fallback() {
+        for i = span.start; i < span.stop; i = i + 1 {
+          out.push(pieces.byte_id(bytes[i].to_int() & 0xFF))
+        }
+        previous_was_unknown = false
+        continue
+      }
       raise @refused.Absent("an unknown character has no piece")
     }
     let kind = pieces.items[span.id].kind

@@ -324,11 +324,15 @@ fn apply_stage(stage : Stage, text : String) -> String {
 }
 
 ///|
-/// Whether decoding should drop a word-break marker that stands at the front.
+/// Whether a word-break marker at the very front of the text stands for a space
+/// the text does not have, rather than one it does.
 ///
-/// A model that adds a leading space puts one there on the way in, and taking
-/// it off again on the way out is what makes the round trip exact.
-pub fn Normalizer::drops_leading_space(self : Normalizer) -> Bool {
+/// A model that adds a leading space puts a marker there on the way in, and
+/// taking it off again on the way out is what makes the round trip exact. A
+/// model that also drops runs of whitespace keeps taking them off until the
+/// text has a character in it, because everything it saw at the front was
+/// whitespace it meant to discard.
+pub fn Normalizer::strips_leading_marker(self : Normalizer) -> Bool {
   match self.mode {
     Identity => false
     Rule => self.add_dummy_prefix || self.remove_extra_whitespaces
@@ -343,6 +347,15 @@ pub fn Normalizer::drops_leading_space(self : Normalizer) -> Bool {
       }
       found
     }
+  }
+}
+
+///|
+/// Whether every marker at the front comes off, not only the first.
+pub fn Normalizer::strips_every_leading_marker(self : Normalizer) -> Bool {
+  match self.mode {
+    Rule => self.remove_extra_whitespaces
+    _ => false
   }
 }
 

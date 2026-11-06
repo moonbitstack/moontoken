@@ -66,7 +66,7 @@ pub struct WordBpe {
 pub fn WordBpe::decode(Self, ArrayView[Int32]) -> String raise @refused.Refused
 pub fn WordBpe::decode_bytes(Self, ArrayView[Int32]) -> Bytes raise @refused.Refused
 pub fn WordBpe::encode(Self, StringView) -> Array[Int32] raise @refused.Refused
-pub fn WordBpe::encode_word(Self, StringView) -> Array[Int32]
+pub fn WordBpe::encode_word(Self, StringView) -> Array[Int32] raise @refused.Refused
 pub fn WordBpe::length(Self) -> Int32
 pub fn WordBpe::new(vocab~ : Array[(String, Int32)], merges~ : Array[(String, String)], options? : WordOptions, decoding? : Decoding, normalizer? : @normalizer.Normalizer, split? : @split.Split) -> Self raise @refused.Refused
 pub fn WordBpe::size(Self) -> Int32

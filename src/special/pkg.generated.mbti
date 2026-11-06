@@ -32,6 +32,7 @@ pub struct Table {
   texts : Array[String]
   ids : Array[Int32]
   by_first : Map[Int32, Array[Int32]]
+  index_of : Map[String, Int32]
   text_of : Map[Int32, String]
 }
 pub fn Table::add(Self, String, Int32) -> Unit

@@ -43,13 +43,20 @@ pub struct Table {
   texts : Array[String]
   ids : Array[Int32]
   by_first : Map[Int32, Array[Int32]]
+  index_of : Map[String, Int32]
   text_of : Map[Int32, String]
 }
 
 ///|
 /// A table with nothing in it.
 pub fn Table::empty() -> Table {
-  { texts: [], ids: [], by_first: Map([]), text_of: Map([]), }
+  {
+    texts: [],
+    ids: [],
+    by_first: Map([]),
+    index_of: Map([]),
+    text_of: Map([]),
+  }
 }
 
 ///|
@@ -68,12 +75,13 @@ pub fn Table::of(pairs : Array[(String, Int32)]) -> Table {
 ///|
 /// Adds a spelling. An empty spelling is ignored: it would match everywhere.
 pub fn Table::add(self : Table, text : String, id : Int32) -> Unit {
-  if text.is_empty() || self.text_of.contains(id) {
+  if text.is_empty() || self.index_of.contains(text) {
     return
   }
   let index = self.texts.length()
   self.texts.push(text)
   self.ids.push(id)
+  self.index_of.set(text, index)
   self.text_of.set(id, text)
   let key = text.at(0).to_int()
   match self.by_first.get(key) {
@@ -97,13 +105,10 @@ pub fn Table::text(self : Table, id : Int32) -> String? {
 ///|
 /// The id of a spelling.
 pub fn Table::id(self : Table, text : StringView) -> Int32? {
-  let mut found = None
-  for index in self.candidates(text, 0) {
-    if self.texts[index][:] == text {
-      found = Some(self.ids[index])
-    }
+  match self.index_of.get_from_string(text) {
+    Some(index) => Some(self.ids[index])
+    None => None
   }
-  found
 }
 
 ///|
@@ -123,28 +128,56 @@ fn Table::candidates(
 }
 
 ///|
-/// The longest reserved token at or after `from`.
+/// The offset just past the code point at `at`.
+fn advance(text : StringView, at : Int32) -> Int32 {
+  let unit = text.at(at).to_int()
+  if unit >= 0xD800 && unit <= 0xDBFF && at + 1 < text.length() {
+    let low = text.at(at + 1).to_int()
+    if low >= 0xDC00 && low <= 0xDFFF {
+      return at + 2
+    }
+  }
+  at + 1
+}
+
+///|
+/// Whether the spelling `candidate` stands at `at`.
+///
+/// Compared a code unit at a time rather than by slicing, because a spelling
+/// is shorter than the text it is looked for in and a slice of that text can
+/// land in the middle of a surrogate pair.
+fn stands_at(text : StringView, at : Int32, candidate : String) -> Bool {
+  for i = 0; i < candidate.length(); i = i + 1 {
+    if text.at(at + i).to_int() != candidate.at(i).to_int() {
+      return false
+    }
+  }
+  true
+}
+
+///|
+/// The longest reserved token at or after `from`, and where it stands.
 pub fn Table::find(self : Table, text : StringView, from : Int32) -> Hit? {
   let mut at = from
   while at < text.length() {
     let mut best = -1
     for index in self.candidates(text, at) {
       let candidate = self.texts[index]
-      if candidate.length() > best && at + candidate.length() <= text.length() {
-        if text.exact_view(start=at, end=at + candidate.length()) == candidate {
-          best = candidate.length()
-        }
+      let width = candidate.length()
+      if width > best &&
+        at + width <= text.length() &&
+        stands_at(text, at, candidate) {
+        best = width
       }
     }
     if best > 0 {
-      let entry = self.id(text.exact_view(start=at, end=at + best)).unwrap()
-      return Some({
-        start: at,
-        text: text.exact_view(start=at, end=at + best).to_owned(),
-        id: entry,
-      })
+      let spelling = text.exact_view(start=at, end=at + best)
+      match self.id(spelling) {
+        Some(id) => return Some({ start: at, text: spelling.to_owned(), id, })
+        None => ()
+      }
     }
-    at = at + 1
+    at = advance(text, at)
   }
   None
 }

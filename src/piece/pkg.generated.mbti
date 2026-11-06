@@ -7,6 +7,8 @@ import {
 }
 
 // Values
+pub fn byte_of_piece(Bytes) -> Int32?
+
 pub fn byte_piece(Int32) -> String
 
 // Errors

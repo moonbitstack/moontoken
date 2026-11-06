@@ -16,6 +16,7 @@ fn decode_pieces(
   let pending : Array[Byte] = []
   let symbol : Bytes = b"\xE2\x96\x81"
   let mut at_first = true
+  let mut marker_seen = false
   for id in ids {
     let piece = pieces.at(id)
     if piece.kind == RawByte {
@@ -26,28 +27,24 @@ fn decode_pieces(
       continue
     }
     flush_bytes(pending, out)
-    if !out.is_empty() {
+    if marker_seen || !out.is_empty() {
       at_first = false
     }
     if piece.kind == Control {
       continue
     }
-    let mut text = piece.text
-    let mut dropped = false
-    if at_first && normalizer.drops_leading_space() {
-      if starts_with(text, symbol) {
-        text = text[symbol.length():].to_owned()
-        dropped = true
-      }
-    }
     if piece.kind == Unknown {
       append(out, pieces.unk_surface[:])
-    } else {
-      append_replaced(out, text[:], symbol, b' ')
+      continue
     }
-    if dropped || !out.is_empty() {
-      at_first = false
+    let mut text = piece.text
+    if at_first && normalizer.strips_leading_marker() {
+      if starts_with(text, symbol) {
+        text = text[symbol.length():].to_owned()
+        marker_seen = !normalizer.strips_every_leading_marker()
+      }
     }
+    append_replaced(out, text[:], symbol, b' ')
   }
   flush_bytes(pending, out)
   @utf8.decode_lossy(Bytes::from_array(out)[:])
