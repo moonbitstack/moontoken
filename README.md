@@ -88,9 +88,10 @@ versions pinned: `tiktoken` 0.14.0 and `sentencepiece` 0.2.3.
 | SentencePiece unigram, BPE, and unigram without the dummy prefix | 258 | 258 |
 | **Total** | **348** | **348** |
 
-The models are trained from a corpus the script writes, so a run is
-reproducible; CI re-runs the generator and requires the working tree to stay
-clean.
+The models are trained from a corpus the script writes and the trainer is pinned
+to one thread, so a run is reproducible byte for byte; CI re-runs the generator
+and requires the working tree to stay clean. A vector that no longer matches its
+reference is worse than no vector at all.
 
 **Live differential.** `scripts/diff_reference.py` asks the references again,
 now, for 242 records: the texts the vectors use plus 200 random strings over the

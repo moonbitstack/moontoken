@@ -33,15 +33,22 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BINARY = os.path.join(
-    ROOT,
-    "_build",
-    "native",
-    "debug",
-    "build",
-    "examples",
-    "03-conformance",
-    "03-conformance.exe",
+
+# The program the comparisons drive, as `moon build --target native` leaves it.
+# Windows appends an extension and the other platforms do not.
+_BUILT = os.path.join(
+    ROOT, "_build", "native", "debug", "build", "examples", "03-conformance"
+)
+BINARY = next(
+    (
+        path
+        for path in (
+            os.path.join(_BUILT, "03-conformance.exe"),
+            os.path.join(_BUILT, "03-conformance"),
+        )
+        if os.path.exists(path)
+    ),
+    os.path.join(_BUILT, "03-conformance.exe"),
 )
 WORK = os.path.join(ROOT, ".cache", "diff")
 
@@ -272,7 +279,7 @@ def main():
     args = parser.parse_args()
 
     if not os.path.exists(BINARY):
-        raise SystemExit(f"{BINARY} is missing: run `moon build --target native`")
+        raise SystemExit(f"{_BUILT} is empty: run `moon build --target native`")
 
     families = args.family or ["tiktoken", "piece", "json"]
     texts = records()

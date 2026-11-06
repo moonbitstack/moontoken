@@ -220,6 +220,9 @@ def piece_vectors():
         normalization_rule_name="user_defined",
         normalization_rule_tsv=".cache/sp/rules.tsv",
         minloglevel=2,
+        # One thread, so that the order the pieces are found in does not depend
+        # on how many cores the machine running this has.
+        num_threads=1,
     )
     specs = [
         ("unigram", dict(model_type="unigram", byte_fallback=True)),

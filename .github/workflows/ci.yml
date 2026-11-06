@@ -97,7 +97,9 @@ jobs:
           moon build --target native
 
       # A committed vector that no longer matches its reference is worse than no
-      # vector at all, so the generator has to leave the tree alone.
+      # vector at all, so the generator has to leave the tree alone. It does
+      # here, on every platform CI runs: the corpus is written by the script and
+      # the trainer is pinned to one thread, so the models are the same bytes.
       - name: the vectors still match the references
         run: |
           python scripts/gen_vectors.py
