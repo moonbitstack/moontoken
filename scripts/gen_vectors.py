@@ -15,9 +15,10 @@ requires the working tree to stay clean.
 """
 
 import base64
-import os
-import urllib.request
 import hashlib
+import os
+import subprocess
+import urllib.request
 
 import sentencepiece as spm
 import tiktoken
@@ -348,9 +349,16 @@ def main():
     write_byte_bpe(vectors)
     write_special(vectors)
     write_piece(piece_vectors())
-    print("wrote src/vectors_byte_bpe_test.mbt")
-    print("wrote src/vectors_special_test.mbt")
-    print("wrote src/vectors_piece_test.mbt")
+    for name in [
+        "src/vectors_byte_bpe_test.mbt",
+        "src/vectors_special_test.mbt",
+        "src/vectors_piece_test.mbt",
+    ]:
+        print(f"wrote {name}")
+    # The files are MoonBit source, and the repository keeps them formatted, so
+    # the generator formats them too: an unformatted vector file would make the
+    # `moon fmt` check in CI fail on a tree nobody touched.
+    subprocess.run(["moon", "fmt"], check=True)
 
 
 if __name__ == "__main__":
