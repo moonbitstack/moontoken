@@ -12,8 +12,12 @@ business: a GGUF file is
 a SentencePiece model are read here, and a published rank table is a string.
 
 ```moonbit
-let tokenizer = @moontoken.Tokenizer::cl100k(ranks~)
-let ids = tokenizer.encode("the world and the thing")
+/// `table` is the text of a published `cl100k_base.tiktoken` file.
+fn ids_of(table : String, text : String) -> Array[Int] raise {
+  let ranks = @vocab.Ranks::from_tiktoken(table)
+  let tokenizer = @moontoken.Tokenizer::cl100k(ranks~)
+  tokenizer.encode(text)
+}
 ```
 
 ```
@@ -63,10 +67,14 @@ text. Whether text that happens to contain `<|endoftext|>` is taken as the
 token, taken as text, or refused is the caller's decision, never the library's:
 
 ```moonbit
-tokenizer.encode(text, special=@special.Refuse)   // refuse it
-tokenizer.encode(text, special=@special.Allow)    // take it as the token
-tokenizer.encode(text, special=@special.Ignore)   // encode it as text
-tokenizer.encode(text, special=@special.Only(["<|endoftext|>"]))
+fn four_ways(tokenizer : @moontoken.Tokenizer, text : String) -> Array[Array[Int]] raise {
+  [
+    tokenizer.encode(text, special=@special.Refuse), // refuse it
+    tokenizer.encode(text, special=@special.Allow), // take it as the token
+    tokenizer.encode(text, special=@special.Ignore), // encode it as text
+    tokenizer.encode(text, special=@special.Only(["<|endoftext|>"])),
+  ]
+}
 ```
 
 When one spelling is a prefix of another, the longest one wins. The reference
