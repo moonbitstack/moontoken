@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/refused"
+
+// Values
+
+// Errors
+pub(all) suberror Refused {
+  Malformed(String, Int32)
+  Absent(String)
+  Unsupported(String)
+  Missing(Int32)
+  Disallowed(String, Int32)
+}
+
+// Types and methods
+
+// Type aliases
+
+// Traits

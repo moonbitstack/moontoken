@@ -1,0 +1,117 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/piece"
+
+import {
+  "moonbitstack/moontoken/normalizer",
+  "moonbitstack/moontoken/refused",
+}
+
+// Values
+pub fn byte_piece(Int32) -> String
+
+// Errors
+
+// Types and methods
+#derive(Eq)
+pub(all) enum Kind {
+  Normal
+  Unknown
+  Control
+  UserDefined
+  Unused
+  RawByte
+}
+pub fn Kind::equal(Self, Self) -> Bool
+pub fn Kind::not_equal(Self, Self) -> Bool
+
+#derive(Eq)
+pub(all) enum ModelKind {
+  Unigram
+  Bpe
+  Word
+  Char
+}
+pub fn ModelKind::equal(Self, Self) -> Bool
+pub fn ModelKind::not_equal(Self, Self) -> Bool
+
+pub(all) struct Piece {
+  text : Bytes
+  score : Float
+  kind : Kind
+}
+
+pub struct PieceBpe {
+  pieces : Pieces
+  normalizer : @normalizer.Normalizer
+  user_defined : Map[Int32, Array[Bytes]]
+}
+pub fn PieceBpe::decode(Self, ArrayView[Int32]) -> String raise @refused.Refused
+pub fn PieceBpe::encode(Self, StringView) -> Array[Int32] raise @refused.Refused
+pub fn PieceBpe::length(Self) -> Int32
+pub fn PieceBpe::new(pieces~ : Pieces, normalizer? : @normalizer.Normalizer, user_defined? : Array[Bytes]) -> Self
+pub fn PieceBpe::pieces(Self) -> Pieces
+pub fn PieceBpe::token_bytes(Self, Int32) -> Bytes?
+
+pub struct Pieces {
+  items : Array[Piece]
+  exact : Map[Bytes, Int32]
+  lattice : Map[Bytes, Int32]
+  longest : Int32
+  unk_id : Int32
+  unk_surface : Bytes
+  byte_ids : Array[Int32]
+  byte_fallback : Bool
+}
+pub fn Pieces::at(Self, Int32) -> Piece raise @refused.Refused
+pub fn Pieces::byte_fallback(Self) -> Bool
+pub fn Pieces::byte_id(Self, Int32) -> Int32
+pub fn Pieces::id(Self, BytesView) -> Int32?
+pub fn Pieces::lattice_id(Self, BytesView) -> Int32?
+pub fn Pieces::length(Self) -> Int32
+pub fn Pieces::longest(Self) -> Int32
+pub fn Pieces::new(items~ : Array[Piece], unk_id? : Int32, unk_surface? : String, byte_fallback? : Bool) -> Self raise @refused.Refused
+pub fn Pieces::unk_id(Self) -> Int32
+pub fn Pieces::unk_surface(Self) -> Bytes
+
+pub struct Proto {
+  pieces : Pieces
+  trainer : Trainer
+  normalizer : @normalizer.Spec
+}
+pub fn Proto::normalizer(Self) -> @normalizer.Normalizer raise @refused.Refused
+pub fn Proto::of(Bytes) -> Self raise @refused.Refused
+pub fn Proto::pieces(Self) -> Pieces
+pub fn Proto::spec(Self) -> @normalizer.Spec
+pub fn Proto::trainer(Self) -> Trainer
+pub fn Proto::user_defined(Self) -> Array[Bytes]
+
+pub struct Span {
+  start : Int32
+  stop : Int32
+  id : Int32
+}
+
+pub(all) struct Trainer {
+  kind : ModelKind
+  unk_id : Int32
+  byte_fallback : Bool
+  treat_whitespace_as_suffix : Bool
+  unk_piece : String
+  unk_surface : String
+}
+
+pub struct Unigram {
+  pieces : Pieces
+  normalizer : @normalizer.Normalizer
+  min_score : Float
+}
+pub fn Unigram::decode(Self, ArrayView[Int32]) -> String raise @refused.Refused
+pub fn Unigram::encode(Self, StringView) -> Array[Int32] raise @refused.Refused
+pub fn Unigram::length(Self) -> Int32
+pub fn Unigram::new(pieces~ : Pieces, normalizer? : @normalizer.Normalizer) -> Self
+pub fn Unigram::pieces(Self) -> Pieces
+pub fn Unigram::token_bytes(Self, Int32) -> Bytes?
+
+// Type aliases
+
+// Traits

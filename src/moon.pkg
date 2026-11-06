@@ -1,2 +1,11 @@
-// What this package implements, and a first-hand link to the specification it
-// implements. A package without that link is not finished.
+import {
+  "moonbitstack/moontoken/refused",
+  "moonbitstack/moontoken/vocab",
+  "moonbitstack/moontoken/split",
+  "moonbitstack/moontoken/bpe",
+  "moonbitstack/moontoken/piece",
+  "moonbitstack/moontoken/normalizer",
+  "moonbitstack/moontoken/special",
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
+}

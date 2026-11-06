@@ -1,0 +1,7 @@
+import {
+  "moonbitstack/moontoken/refused",
+  "moonbitstack/moontoken/split",
+  "moonbitstack/moonucd" @ucd,
+  "moonbitstack/moonucd/normalize",
+  "moonbitlang/core/encoding/utf8",
+}

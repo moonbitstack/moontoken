@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/vocab"
+
+import {
+  "moonbitstack/moontoken/refused",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Ranks {
+  encoder : Map[Bytes, Int32]
+  decoder : Map[Int32, Bytes]
+}
+pub fn Ranks::empty() -> Self
+pub fn Ranks::from_pairs(Array[(Bytes, Int32)]) -> Self raise @refused.Refused
+pub fn Ranks::from_tiktoken(StringView) -> Self raise @refused.Refused
+pub fn Ranks::get(Self, BytesView) -> Int32?
+pub fn Ranks::length(Self) -> Int32
+pub fn Ranks::missing_bytes(Self) -> Array[Int32]
+pub fn Ranks::token(Self, Int32) -> Bytes?
+
+// Type aliases
+
+// Traits

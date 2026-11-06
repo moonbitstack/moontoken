@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/normalizer"
+
+import {
+  "moonbitstack/moontoken/refused",
+}
+
+// Values
+pub fn longest_reserved(Map[Int32, Array[Bytes]], Bytes, Int32) -> Int32?
+
+pub fn user_index(Array[Bytes]) -> Map[Int32, Array[Bytes]]
+
+// Errors
+
+// Types and methods
+pub enum Mode {
+  Identity
+  Rule
+  Chain
+}
+
+pub struct Normalizer {
+  mode : Mode
+  add_dummy_prefix : Bool
+  remove_extra_whitespaces : Bool
+  escape_whitespaces : Bool
+  treat_whitespace_as_suffix : Bool
+  trie : Array[UInt32]
+  replacements : Bytes
+  user_defined : Map[Int32, Array[Bytes]]
+  stages : Array[Stage]
+}
+pub fn Normalizer::apply(Self, StringView) -> String raise @refused.Refused
+pub fn Normalizer::chain(Array[Stage]) -> Self
+pub fn Normalizer::drops_leading_space(Self) -> Bool
+pub fn Normalizer::identity() -> Self
+pub fn Normalizer::rule(spec~ : Spec, user_defined? : Array[Bytes], treat_whitespace_as_suffix? : Bool) -> Self raise @refused.Refused
+
+pub(all) struct Spec {
+  name : String
+  charsmap : Bytes
+  add_dummy_prefix : Bool
+  remove_extra_whitespaces : Bool
+  escape_whitespaces : Bool
+}
+
+pub(all) enum Stage {
+  Nfc
+  Nfd
+  Nfkc
+  Nfkd
+  Lowercase
+  Prepend(String)
+  Pad(String)
+  Replace(String, String)
+  Trim
+  EscapeSpace
+}
+
+// Type aliases
+
+// Traits

@@ -1,13 +1,56 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitstack/moontoken"
 
+import {
+  "moonbitlang/core/json",
+  "moonbitstack/moontoken/bpe",
+  "moonbitstack/moontoken/normalizer",
+  "moonbitstack/moontoken/piece",
+  "moonbitstack/moontoken/refused",
+  "moonbitstack/moontoken/special",
+  "moonbitstack/moontoken/split",
+  "moonbitstack/moontoken/vocab",
+}
+
 // Values
-pub fn greet(StringView) -> String
 
 // Errors
 
 // Types and methods
+pub struct Tokenizer {
+  model : &Model
+  specials : @special.Table
+  policy : @special.Policy
+}
+pub fn Tokenizer::byte_bpe(ranks~ : @vocab.Ranks, split~ : @split.Split, specials? : @special.Table, policy? : @special.Policy, options? : @bpe.Options) -> Self raise @refused.Refused
+pub fn Tokenizer::cl100k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused
+pub fn Tokenizer::count(Self, StringView, special? : @special.Policy) -> Int32 raise @refused.Refused
+pub fn Tokenizer::decode(Self, Array[Int32], reserved? : Bool) -> String raise @refused.Refused
+pub fn Tokenizer::decode_bytes(Self, Array[Int32], reserved? : Bool) -> Bytes raise @refused.Refused
+pub fn Tokenizer::encode(Self, StringView, special? : @special.Policy) -> Array[Int32] raise @refused.Refused
+pub fn Tokenizer::encode_ordinary(Self, StringView) -> Array[Int32] raise @refused.Refused
+pub fn Tokenizer::length(Self) -> Int32
+pub fn Tokenizer::new(model~ : &Model, specials? : @special.Table, policy? : @special.Policy) -> Self
+pub fn Tokenizer::o200k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused
+pub fn Tokenizer::of(@json.Json) -> Self raise @refused.Refused
+pub fn Tokenizer::of_proto(Bytes) -> Self raise @refused.Refused
+pub fn Tokenizer::p50k_edit(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused
+pub fn Tokenizer::parse(StringView) -> Self raise @refused.Refused
+pub fn Tokenizer::piece_bpe(pieces~ : @piece.Pieces, normalizer? : @normalizer.Normalizer, user_defined? : Array[Bytes], specials? : @special.Table, policy? : @special.Policy) -> Self
+pub fn Tokenizer::policy(Self) -> @special.Policy
+pub fn Tokenizer::r50k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused
+pub fn Tokenizer::token_bytes(Self, Int32) -> Bytes?
+pub fn Tokenizer::unigram(pieces~ : @piece.Pieces, normalizer? : @normalizer.Normalizer, specials? : @special.Table, policy? : @special.Policy) -> Self
+pub fn Tokenizer::with_policy(Self, @special.Policy) -> Self
 
 // Type aliases
+pub using @refused {type Refused}
 
 // Traits
+pub(open) trait Model {
+  fn encode(Self, StringView) -> Array[Int32] raise @refused.Refused
+  fn decode_bytes(Self, Array[Int32]) -> Bytes raise @refused.Refused
+  fn decode(Self, Array[Int32]) -> String raise @refused.Refused
+  fn token_bytes(Self, Int32) -> Bytes?
+  fn length(Self) -> Int32
+}

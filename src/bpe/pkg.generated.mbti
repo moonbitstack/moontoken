@@ -1,0 +1,83 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/bpe"
+
+import {
+  "moonbitstack/moontoken/normalizer",
+  "moonbitstack/moontoken/refused",
+  "moonbitstack/moontoken/split",
+  "moonbitstack/moontoken/vocab",
+}
+
+// Values
+pub fn byte_alphabet() -> Array[Char]
+
+pub let options : Options
+
+pub let word_options : WordOptions
+
+// Errors
+
+// Types and methods
+pub struct ByteBpe {
+  ranks : @vocab.Ranks
+  split : @split.Split
+  cache : Map[String, Array[Int32]]
+  options : Options
+}
+pub fn ByteBpe::decode(Self, ArrayView[Int32]) -> String raise @refused.Refused
+pub fn ByteBpe::decode_bytes(Self, ArrayView[Int32]) -> Bytes raise @refused.Refused
+pub fn ByteBpe::encode(Self, StringView) -> Array[Int32] raise @refused.Refused
+pub fn ByteBpe::encode_word(Self, StringView) -> Array[Int32] raise @refused.Refused
+pub fn ByteBpe::length(Self) -> Int32
+pub fn ByteBpe::new(ranks~ : @vocab.Ranks, split~ : @split.Split, options? : Options) -> Self raise @refused.Refused
+pub fn ByteBpe::token_bytes(Self, Int32) -> Bytes?
+
+#derive(Eq)
+pub(all) enum Decoding {
+  Alphabet
+  Marker
+  Plain
+}
+pub fn Decoding::equal(Self, Self) -> Bool
+pub fn Decoding::not_equal(Self, Self) -> Bool
+
+pub(all) struct Options {
+  cache : Bool
+  cache_limit : Int32
+}
+
+pub struct WordBpe {
+  vocab : Map[String, Int32]
+  text_of : Map[Int32, String]
+  chars : Map[Char, Int32]
+  merges : Map[Int32, Map[Int32, Int32]]
+  results : Array[Int32]
+  unk_id : Int32
+  byte_ids : Array[Int32]
+  byte_fallback : Bool
+  fuse_unk : Bool
+  ignore_merges : Bool
+  decoding : Decoding
+  normalizer : @normalizer.Normalizer
+  split : @split.Split
+  alphabet : Array[Char]
+  reverse : Map[Int32, Int32]
+}
+pub fn WordBpe::decode(Self, ArrayView[Int32]) -> String raise @refused.Refused
+pub fn WordBpe::decode_bytes(Self, ArrayView[Int32]) -> Bytes raise @refused.Refused
+pub fn WordBpe::encode(Self, StringView) -> Array[Int32] raise @refused.Refused
+pub fn WordBpe::encode_word(Self, StringView) -> Array[Int32]
+pub fn WordBpe::length(Self) -> Int32
+pub fn WordBpe::new(vocab~ : Array[(String, Int32)], merges~ : Array[(String, String)], options? : WordOptions, decoding? : Decoding, normalizer? : @normalizer.Normalizer, split? : @split.Split) -> Self raise @refused.Refused
+pub fn WordBpe::size(Self) -> Int32
+pub fn WordBpe::token_bytes(Self, Int32) -> Bytes?
+
+pub(all) struct WordOptions {
+  unk_id : Int32
+  byte_fallback : Bool
+  ignore_merges : Bool
+}
+
+// Type aliases
+
+// Traits

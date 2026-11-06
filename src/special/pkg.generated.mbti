@@ -1,0 +1,47 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/special"
+
+// Values
+pub fn cl100k_base() -> Table
+
+pub fn o200k_base() -> Table
+
+pub fn p50k_edit() -> Table
+
+pub fn r50k_base() -> Table
+
+// Errors
+
+// Types and methods
+pub(all) struct Hit {
+  start : Int32
+  text : String
+  id : Int32
+}
+
+pub(all) enum Policy {
+  Refuse
+  Allow
+  Ignore
+  Only(Array[String])
+}
+pub fn Policy::allows(Self, StringView) -> Bool
+pub fn Policy::recognizes(Self) -> Bool
+
+pub struct Table {
+  texts : Array[String]
+  ids : Array[Int32]
+  by_first : Map[Int32, Array[Int32]]
+  text_of : Map[Int32, String]
+}
+pub fn Table::add(Self, String, Int32) -> Unit
+pub fn Table::empty() -> Self
+pub fn Table::find(Self, StringView, Int32) -> Hit?
+pub fn Table::id(Self, StringView) -> Int32?
+pub fn Table::length(Self) -> Int32
+pub fn Table::of(Array[(String, Int32)]) -> Self
+pub fn Table::text(Self, Int32) -> String?
+
+// Type aliases
+
+// Traits

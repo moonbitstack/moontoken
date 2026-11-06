@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moontoken/split"
+
+// Values
+pub let digits_individual : Digits
+
+pub let digits_run : Digits
+
+pub fn utf8_width_at(Bytes, Int32) -> Int32
+
+// Errors
+
+// Types and methods
+pub(all) struct Digits {
+  individual : Bool
+}
+
+pub(all) enum Split {
+  Whole
+  Gpt2
+  Cl100k
+  O200k
+  Whitespace
+  Metaspace
+  Digits(Digits)
+  Sequence(Array[Split])
+}
+pub fn Split::pieces(Self, StringView) -> Array[StringView]
+
+// Type aliases
+
+// Traits
