@@ -9,3 +9,11 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
 }
+
+import {
+  "moonbitstack/moontoken/refused",
+  "moonbitstack/moontoken/vocab",
+  "moonbitstack/moontoken/split",
+  "moonbitstack/moontoken/special",
+  "moonbitlang/core/encoding/base64",
+} for "test"

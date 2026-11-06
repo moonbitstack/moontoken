@@ -61,3 +61,47 @@ jobs:
       - name: interfaces are up to date
         run: |
           moon info --target all && git diff --exit-code
+
+  # The references this library is measured against. `build` answers whether the
+  # code compiles and its own tests pass; this answers whether it agrees with
+  # the implementation the format actually comes from. Two layers, because they
+  # fail differently: the vectors catch a change to this library, and the live
+  # differential catches a change to the reference.
+  conformance:
+    permissions:
+      contents: read
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: install moonbit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: install the references, pinned
+        run: |
+          pip install --disable-pip-version-check \
+            tiktoken==0.14.0 sentencepiece==0.2.3 tokenizers==0.23.1
+
+      - name: build the program the comparisons drive
+        run: |
+          moon version --all
+          moon update
+          moon build --target native
+
+      # A committed vector that no longer matches its reference is worse than no
+      # vector at all, so the generator has to leave the tree alone.
+      - name: the vectors still match the references
+        run: |
+          python scripts/gen_vectors.py
+          git diff --exit-code
+
+      - name: the references still agree, record by record
+        run: python scripts/diff_reference.py --prepare

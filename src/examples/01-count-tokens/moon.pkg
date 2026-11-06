@@ -1,0 +1,8 @@
+// What a text costs, over a vocabulary this example builds itself.
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moontoken",
+  "moonbitstack/moontoken/vocab",
+  "moonbitlang/core/encoding/utf8",
+}

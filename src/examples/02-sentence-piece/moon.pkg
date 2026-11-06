@@ -1,0 +1,9 @@
+// A sentence-piece vocabulary written out by hand.
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moontoken",
+  "moonbitstack/moontoken/piece",
+  "moonbitstack/moontoken/normalizer",
+  "moonbitlang/core/encoding/utf8",
+}

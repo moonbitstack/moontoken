@@ -4,3 +4,8 @@ import {
   "moonbitstack/moontoken/normalizer",
   "moonbitlang/core/encoding/utf8",
 }
+
+import {
+  "moonbitstack/moontoken/refused",
+  "moonbitlang/core/encoding/utf8",
+} for "test"
