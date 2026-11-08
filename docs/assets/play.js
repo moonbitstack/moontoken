@@ -1,4 +1,4 @@
-import { face, ink, inkVar, open, slug, spaced } from "./engine.js";
+import { ink, inkVar, open, paint, slug, spaced, spoken } from "./engine.js";
 
 const note = document.querySelector("[data-engine-note]");
 const box = document.getElementById("manuscript");
@@ -22,13 +22,13 @@ function row(token) {
   const id = document.createElement("span");
   id.className = "i";
   id.textContent = String(token.id);
+  line.setAttribute("aria-label", `token ${token.id}, ${spoken(token.hex)}`);
   const text = document.createElement("span");
   text.className = "t";
-  const shown = face(token.hex);
   const span = document.createElement("span");
   span.className = "face";
-  span.textContent = shown.hex ? shown.text + " " : shown.text;
   span.style.setProperty("--slug", `var(${inkVar(token.id)})`);
+  paint(span, token.hex);
   text.append(span);
   const bytes = document.createElement("span");
   bytes.className = "b";

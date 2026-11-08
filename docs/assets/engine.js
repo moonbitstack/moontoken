@@ -8,6 +8,11 @@ const decoder = new TextDecoder("utf-8", { fatal: true });
 // A vocabulary entry is bytes, and some of them are not text on their own: a
 // three-byte character in a table that never merged it stays three entries.
 // Those are printed as hex, which is what they are.
+//
+// A space inside a token is printed as a quad, the blank slug a compositor sets
+// between words. It is drawn rather than written because no character stands for
+// a space honestly: a space disappears, and the symbols that try (SP, U+2423)
+// read as letters in a monospaced face.
 export function face(hex) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < bytes.length; i += 1) {
@@ -19,13 +24,50 @@ export function face(hex) {
   } catch (error) {
     text = null;
   }
-  if (text !== null && text.trim() === "" && text.length <= 2) {
-    return { text: text.replaceAll(" ", "\u2420").replaceAll("\n", "\u21b5"), hex: false };
+  if (text !== null && !/[\u0000-\u001f\u007f-\u009f]/.test(text)) {
+    const parts = [];
+    let run = "";
+    for (const ch of text) {
+      if (ch === " " || ch === "\u00a0" || ch === "\t" || ch === "\n") {
+        if (run) {
+          parts.push({ kind: "text", text: run });
+          run = "";
+        }
+        parts.push({ kind: "quad" });
+      } else {
+        run += ch;
+      }
+    }
+    if (run) parts.push({ kind: "text", text: run });
+    return { parts, hex: false };
   }
-  if (text !== null && !/[\u0000-\u001f\u007f]/.test(text)) {
-    return { text, hex: false };
+  return { parts: [{ kind: "hex", text: hex.toUpperCase() }], hex: true };
+}
+
+// The same token, said out loud, for a reader who cannot see the quad.
+export function spoken(hex) {
+  const shown = face(hex);
+  if (shown.hex) return "bytes " + shown.parts.map((part) => part.text).join(" ");
+  return shown.parts
+    .map((part) => (part.kind === "quad" ? "space" : part.text))
+    .join(" ");
+}
+
+export function paint(node, hex) {
+  for (const part of face(hex).parts) {
+    if (part.kind === "quad") {
+      const quad = document.createElement("i");
+      quad.className = "quad";
+      quad.setAttribute("aria-hidden", "true");
+      node.append(quad);
+    } else {
+      const span = document.createElement("span");
+      if (part.kind === "hex") span.className = "hex";
+      span.textContent = part.text;
+      node.append(span);
+    }
   }
-  return { text: hex.toUpperCase(), hex: true };
+  return node;
 }
 
 // Which ink a piece is set in. Bytes 0-31 and 32-255 are the alphabet every
@@ -50,7 +92,6 @@ export function spaced(hex) {
 }
 
 export function slug(token) {
-  const shown = face(token.hex);
   const node = document.createElement("button");
   node.type = "button";
   node.className = "slug " + ink(token.id);
@@ -58,26 +99,17 @@ export function slug(token) {
   node.dataset.hex = token.hex;
   node.dataset.bytes = String(token.bytes);
   node.setAttribute("aria-pressed", "false");
-  const cover = document.createElement("span");
-  cover.className = "face";
-  if (shown.hex) {
-    const small = document.createElement("span");
-    small.className = "hex";
-    small.textContent = shown.text;
-    cover.append(small);
-  } else if (shown.text.startsWith("\u2420") || shown.text.startsWith("\u21b5")) {
-    const blank = document.createElement("span");
-    blank.className = "blank";
-    blank.textContent = shown.text;
-    cover.append(blank);
-  } else {
-    cover.textContent = shown.text;
-  }
+  const body = document.createElement("span");
+  body.className = "face";
+  paint(body, token.hex);
   const id = document.createElement("span");
   id.className = "id";
   id.textContent = String(token.id);
-  node.append(cover, id);
-  node.title = `${token.id} · ${token.bytes} byte${token.bytes === 1 ? "" : "s"} · ${spaced(token.hex)}`;
+  node.append(body, id);
+  node.setAttribute("aria-label", `token ${token.id}: ${spoken(token.hex)}`);
+  node.title = `${token.id} · ${token.bytes} byte${token.bytes === 1 ? "" : "s"} · ${spaced(
+    token.hex,
+  )}`;
   return node;
 }
 

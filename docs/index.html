@@ -52,7 +52,8 @@ document.documentElement.dataset.theme=p;
       </div>
       <h1>Text into <em>tokens</em>,<br>and back.</h1>
       <p class="lede">A tokenizer is three things: a way to cut text into the words a model was trained on, a vocabulary that says what each of those words costs, and a rule for the tokens a model reserves. This library implements all three for the two families in use today, and takes the vocabulary as an argument.</p>
-      <div class="run">
+      <div class="docket">
+        <span class="docket-tag">Order</span>
         <div class="install"><span>$</span>moon add moonbitstack/moontoken</div>
         <a class="button" href="guide.html">Read the guide</a>
         <a class="button quiet" href="play.html">The proving table</a>
@@ -88,7 +89,7 @@ document.documentElement.dataset.theme=p;
       <div class="figures">
         <div><span>vocabulary formats</span><b>3</b></div>
         <div><span>published encodings</span><b>4</b></div>
-        <div><span>merges above</span><b id="merges">—</b></div>
+        <div><span>merges above</span><b id="merges-count">—</b></div>
         <div><span>files opened by the library</span><b>0</b></div>
       </div>
     </div>
@@ -101,7 +102,7 @@ document.documentElement.dataset.theme=p;
       <p>Where a table comes from is the format's business, not the tokenizer's: a <code>GGUF</code> file, a download from a model hub, a string in a repository. This library parses the formats and takes the bytes; fetching them is the caller's. The table below is the one the stick above runs on — <b id="case-count">—</b> entries, every byte value included, because a table with a gap is not total over text.</p>
       <div class="case-bar">
         <span>the alphabet</span>
-        <span>every one of the 256 byte values, as the table holds them</span>
+        <span>all 256 byte values, in the order the table holds them: sixteen to a row</span>
         <span>click a compartment to read its bytes</span>
       </div>
       <div class="type-case bytes" id="case" aria-label="The 256 byte entries of the specimen table"></div>

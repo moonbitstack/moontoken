@@ -1,4 +1,4 @@
-import { face, ink, open, slug, spaced } from "./engine.js";
+import { ink, open, paint, slug, spaced, spoken } from "./engine.js";
 
 const note = document.querySelector("[data-engine-note]");
 const manuscript = document.getElementById("manuscript");
@@ -32,27 +32,33 @@ function compose() {
   say("the library, compiled to JavaScript, running in this page");
   if (peel) {
     peel.querySelector(".who").textContent = "every id, from the table";
-    peel.querySelector(".what").textContent =
-      result.ids.join(" ") || "nothing to encode";
+    peel.querySelector(".what").textContent = result.ids.join(" ") || "nothing to encode";
   }
 }
 
+function head(text) {
+  const node = document.createElement("span");
+  node.className = "head";
+  node.textContent = text;
+  return node;
+}
+
+function rowLabel(text) {
+  const node = document.createElement("span");
+  node.className = "rowlab";
+  node.textContent = text;
+  return node;
+}
+
 function caseCell(entry) {
-  const shown = face(entry.hex);
   const cell = document.createElement("button");
   cell.type = "button";
   cell.className = "cell " + ink(entry.id);
   cell.dataset.id = String(entry.id);
   cell.dataset.hex = entry.hex;
-  cell.title = `${entry.id} · ${spaced(entry.hex)}`;
-  if (shown.hex) {
-    const hex = document.createElement("span");
-    hex.className = "hex";
-    hex.textContent = shown.text;
-    cell.append(hex);
-  } else {
-    cell.textContent = shown.text;
-  }
+  cell.title = `${entry.id} · 0x${entry.hex.toUpperCase()} · ${spoken(entry.hex)}`;
+  cell.setAttribute("aria-label", `id ${entry.id}, ${spoken(entry.hex)}`);
+  paint(cell, entry.hex);
   cell.addEventListener("click", () => {
     if (!peel) return;
     peel.querySelector(".who").textContent = `id ${entry.id}`;
@@ -63,11 +69,24 @@ function caseCell(entry) {
   return cell;
 }
 
+// The 256 byte entries are laid out as the byte map they are: sixteen columns
+// labelled 0 to F, and a row for each high nibble, so a reader can find id 0x4F
+// without counting cells.
 function fillCase(table) {
   if (!caseBox) return;
   const bytes = table.entries.filter((entry) => entry.id < 256);
   const merges = table.entries.filter((entry) => entry.id >= 256);
-  caseBox.replaceChildren(...bytes.map(caseCell));
+  const cells = [head("")];
+  for (let column = 0; column < 16; column += 1) {
+    cells.push(head(column.toString(16).toUpperCase()));
+  }
+  for (let row = 0; row < 16; row += 1) {
+    cells.push(rowLabel((row * 16).toString(16).toUpperCase().padStart(2, "0")));
+    for (let column = 0; column < 16; column += 1) {
+      cells.push(caseCell(bytes[row * 16 + column]));
+    }
+  }
+  caseBox.replaceChildren(...cells);
   mergeBox?.replaceChildren(...merges.map(caseCell));
   const count = document.getElementById("case-count");
   if (count) count.textContent = String(table.vocabulary);
@@ -95,10 +114,9 @@ open()
   .then((ready) => {
     engine = ready;
     compose();
-    const table = engine.table();
-    fillCase(table);
+    fillCase(engine.table());
     const spec = engine.spec();
-    document.getElementById("merges")?.replaceChildren(
+    document.getElementById("merges-count")?.replaceChildren(
       document.createTextNode(String(spec.merges)),
     );
   })
