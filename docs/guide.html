@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moontoken — the guide</title>
+<meta name="description" content="From a first vocabulary to a SentencePiece model file, a tokenizer.json, and the policies in between.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+try{var n=performance.getEntriesByType("navigation")[0];if(n&&n.type==="reload")sessionStorage.removeItem("moontoken.press")}catch(e){}
+try{var p=sessionStorage.getItem("moontoken.press")}catch(e){p=null}
+var q=new URLSearchParams(location.search).get("press");
+if(q==="day"||q==="night")p=q;
+if(!p)p=matchMedia("(prefers-color-scheme: dark)").matches?"night":"day";
+document.documentElement.dataset.theme=p;
+</script>
+<script type="module" src="assets/scroll.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <a class="mark" href="index.html">moon<em>token</em></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="guide.html" aria-current="page">Guide</a>
+    <a href="api.html">API</a>
+    <a href="play.html">Table</a>
+  </nav>
+  <div class="tools">
+    <button id="theme" type="button" aria-pressed="false">
+      <span class="lamp" aria-hidden="true"></span><span class="name">Day</span>
+    </button>
+    <a class="icon-link" href="https://github.com/moonbitstack/moontoken" aria-label="moontoken on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="guide">
+    <nav class="toc" aria-label="The guide">
+      <div class="h">The guide</div>
+      <a href="#install">Install</a>
+      <a href="#table">A table of your own</a>
+      <a href="#cost">What a token costs</a>
+      <a href="#bytes">Bytes, and the way back</a>
+      <a href="#published">A published encoding</a>
+      <a href="#reserved">Reserved tokens</a>
+      <a href="#piece">A SentencePiece model</a>
+      <a href="#json">A tokenizer.json</a>
+      <a href="#refusals">When it refuses</a>
+      <a href="#model">A model of your own</a>
+    </nav>
+
+    <article class="doc">
+      <h1>From a table to a model file</h1>
+      <p class="standfirst">A tokenizer is a vocabulary plus the rules for cutting text and for the tokens a model reserves. This guide builds one from nothing, then reads the three formats a real model ships: a rank table, a SentencePiece <code>.model</code>, and a <code>tokenizer.json</code>. Every block below compiles, and every output was produced by running it.</p>
+
+      <h2 id="install"><span class="step">01</span>Install</h2>
+      <pre class="code">moon add moonbitstack/moontoken</pre>
+      <p>Nothing else is needed, and no dependency opens a file. The library parses formats; fetching a vocabulary, caching it or unpacking it from a model archive stays with the caller.</p>
+
+      <h2 id="table"><span class="step">02</span>A table of your own</h2>
+      <p>A byte-level table has to carry every byte value: that is what makes the encoding total over text, and <code>Ranks::from_pairs</code> is where you say so. On top of the 256 bytes go merges — each a byte string and the rank it occupies. The smallest useful table is 256 entries and no merges; this one has seven, which is enough to see the mechanism.</p>
+      <pre class="code">fn ranks() -> @vocab.Ranks raise {
+  let pairs : Array[(Bytes, Int32)] = []
+  for b = 0; b &lt; 256; b = b + 1 {
+    pairs.push((Bytes::make(1, b.to_byte()), b))
+  }
+  let merges = [
+    ("th", 256), ("he", 257), ("the", 258), ("in", 259),
+    ("ing", 260), (" and", 261), (" world", 262),
+  ]
+  for i = 0; i &lt; merges.length(); i = i + 1 {
+    let (token, rank) = merges[i]
+    pairs.push((@utf8.encode(token), rank))
+  }
+  @vocab.Ranks::from_pairs(pairs)
+}</pre>
+      <p>Then a tokenizer: the published <code>cl100k_base</code> split, and the table you just built. The split is a scanner written in this library, not a regular expression handed to a host runtime, so the same text splits the same way on every backend.</p>
+      <pre class="code">fn tokenizer() -> @moontoken.Tokenizer raise {
+  @moontoken.Tokenizer::cl100k(ranks=ranks())
+}
+
+fn ids_text(ids : Array[Int32]) -> String {
+  let out = StringBuilder()
+  let mut gap = ""
+  for id in ids {
+    out.write_string(gap)
+    out.write_string(id.to_string())
+    gap = " "
+  }
+  out.to_string()
+}</pre>
+      <pre class="code">fn encode_once() -> String raise {
+  let tokenizer = tokenizer()
+  ids_text(tokenizer.encode("the world and the thing"))
+}</pre>
+      <pre class="out">258 262 261 32 258 32 256 260</pre>
+      <p>Seven ids for twenty-three bytes. <code>the</code> is one entry, <code> world</code> is one, <code> and</code> is one; the space before <code>the</code> is not merged, so the word and the space are separate. That asymmetry is not a bug in the split — it is what the table was given.</p>
+
+      <h2 id="cost"><span class="step">03</span>What a token costs</h2>
+      <p>Counting without encoding allocates nothing you keep: <code>count</code> walks the same split and the same merges, and returns an <code>Int32</code>.</p>
+      <pre class="code">fn counts() -> (Int32, Int32) raise {
+  let tokenizer = tokenizer()
+  (tokenizer.count("the world and the thing"), tokenizer.length())
+}</pre>
+      <pre class="out">8  263</pre>
+      <p>The first number is the cost of that sentence; the second is the size of the table, which is what <code>length</code> reports. Both are cheap, and neither touches the network.</p>
+
+      <h2 id="bytes"><span class="step">04</span>Bytes, and the way back</h2>
+      <p>A byte-level vocabulary can hold entries that are not valid UTF-8 on their own — a stray continuation byte, or the first two bytes of a three-byte character. Decoding them as text would drop them; <code>decode_bytes</code> keeps them, and <code>token_bytes</code> says what any single id stands for.</p>
+      <pre class="code">fn round_trip() -> String raise {
+  let tokenizer = tokenizer()
+  let ids = tokenizer.encode("the world and the thing")
+  let text = tokenizer.decode(ids)
+  let raw = tokenizer.decode_bytes(ids)
+  let one = match tokenizer.token_bytes(258) {
+    Some(b) => b
+    None => Bytes::make(0, 0)
+  }
+  "\\{text} · \\{raw.length()} bytes · id 258 is \\{one.length()} bytes"
+}</pre>
+      <pre class="out">the world and the thing · 23 bytes · id 258 is 3 bytes</pre>
+      <p>Text out is text in, byte for byte, including input that was never text to begin with.</p>
+
+      <h2 id="published"><span class="step">05</span>A published encoding</h2>
+      <p>OpenAI publishes rank tables as base64, one <code>token rank</code> per line. <code>Ranks::from_tiktoken</code> reads that text; where the text came from is the caller's business.</p>
+      <pre class="code">fn from_published(table : String) -> @moontoken.Tokenizer raise {
+  @moontoken.Tokenizer::cl100k(ranks=@vocab.Ranks::from_tiktoken(table))
+}</pre>
+      <p>The four published encodings each have a constructor, because each has its own split: <code>Tokenizer::cl100k</code>, <code>::o200k</code>, <code>::r50k</code> and <code>::p50k_edit</code>. When the split is your own, build with <code>Tokenizer::byte_bpe(ranks~, split~, ...)</code> and say which rule to use.</p>
+
+      <h2 id="reserved"><span class="step">06</span>Reserved tokens</h2>
+      <p>A model reserves spellings such as <code>&lt;|endoftext|&gt;</code> that stand for structure. What happens to text that contains one is a policy, and every policy is explicit:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Policy</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Refuse</td><td>Refused, carrying the spelling and its offset.</td></tr>
+            <tr><td>Allow</td><td>Every reserved spelling becomes its token.</td></tr>
+            <tr><td>Ignore</td><td>Reserved spellings are encoded as ordinary text.</td></tr>
+            <tr><td>Only(names)</td><td>Only the names given become tokens.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="code">fn two_readings(tokenizer : @moontoken.Tokenizer) -> (Int32, Int32) raise {
+  let text = "&lt;|endoftext|&gt;"
+  (
+    tokenizer.encode(text, special=@special.Allow).length(),
+    tokenizer.encode(text, special=@special.Ignore).length(),
+  )
+}</pre>
+      <pre class="out">1  13</pre>
+      <p>Allowed, the spelling is one token. Ignored, it is the thirteen bytes it is written with. When one reserved spelling is a prefix of another, the longest wins at every position — the library does not take whichever a hash map yields first.</p>
+
+      <h2 id="piece"><span class="step">07</span>A SentencePiece model</h2>
+      <p>A <code>.model</code> file is a protobuf that carries everything: the pieces with their scores, the normalisation rules, the trie, the byte fallback, and the symbols the trainer reserved. <code>Tokenizer::of_proto</code> reads it whole; nothing is assumed that the file does not say.</p>
+      <pre class="code">fn from_model(bytes : Bytes) -> @moontoken.Tokenizer raise {
+  @moontoken.Tokenizer::of_proto(bytes)
+}</pre>
+      <p>Both trainer types are read — unigram, which this library segments by score, and BPE, which merges by rank. A user-defined symbol is taken as one token, and a character the model never saw falls back to its bytes rather than to an unknown id, when the model says so.</p>
+
+      <h2 id="json"><span class="step">08</span>A tokenizer.json</h2>
+      <p>The JSON a model hub ships holds the vocabulary, the merges, the normaliser, the pre-tokenizer and the added tokens in one document. <code>Tokenizer::parse</code> reads it; <code>Tokenizer::of</code> takes the same thing as a <code>Json</code> value you already parsed.</p>
+      <pre class="code">fn from_json(document : String) -> @moontoken.Tokenizer raise {
+  @moontoken.Tokenizer::parse(document)
+}</pre>
+      <p>Anything the document asks for that this reader does not implement is refused by name. That is the point of the refusal: an approximation would tokenize quietly and wrongly, and the numbers it produced would look fine.</p>
+
+      <h2 id="refusals"><span class="step">09</span>When it refuses</h2>
+      <p>One error type covers the whole library, and it says where. It lives in <code>moonbitstack/moontoken/refused</code> and is re-exported as <code>@moontoken.Refused</code>; the variants are worth matching on rather than printing, because each carries the piece that went wrong.</p>
+      <pre class="code">fn explain(error : @refused.Refused) -> String {
+  match error {
+    Malformed(what, at) => "malformed at \\{at}: \\{what}"
+    Absent(name) => "absent: \\{name}"
+    Unsupported(what) => "unsupported: \\{what}"
+    Missing(id) => "no token with id \\{id}"
+    Disallowed(what, at) => "disallowed at \\{at}: \\{what}"
+  }
+}</pre>
+      <p><code>Missing</code> is the one to expect in production: a stream of ids from a model built on a different table has ids this table does not have, and the number in the error is the first one.</p>
+
+      <h2 id="model"><span class="step">10</span>A model of your own</h2>
+      <p>The <code>Model</code> trait is open: a segmentation this library does not ship can be wrapped in the same tokenizer, keeping the reserved tokens, the policy and the error shape. Five methods are the whole contract.</p>
+      <pre class="code">pub(open) trait Model {
+  fn encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused
+  fn decode_bytes(Self, Array[Int32]) -&gt; Bytes raise @refused.Refused
+  fn decode(Self, Array[Int32]) -&gt; String raise @refused.Refused
+  fn token_bytes(Self, Int32) -&gt; Bytes?
+  fn length(Self) -&gt; Int32
+}</pre>
+      <p>A tokenizer built with <code>Tokenizer::new(model~, specials~, policy~)</code> then answers <code>encode</code>, <code>count</code>, <code>decode</code> and <code>token_bytes</code> through it. <code>token_bytes</code> returning <code>None</code> is the one answer the tokenizer treats as missing rather than malformed.</p>
+
+      <div class="pager">
+        <a href="index.html">← The home page</a>
+        <a href="api.html">The reference →</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <span>moontoken</span>
+  <span>Apache-2.0</span>
+  <a href="https://github.com/moonbitstack/moontoken">github.com/moonbitstack/moontoken</a>
+  <a href="https://mooncakes.io/docs/moonbitstack/moontoken">mooncakes.io</a>
+</footer>
+
+<script type="module" src="assets/theme.js"></script>
+</body>
+</html>

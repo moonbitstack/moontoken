@@ -1,0 +1,14 @@
+// The pages' engine: this library compiled to JavaScript, over a vocabulary
+// small enough to print on the page it is demonstrated on.
+
+import {
+  "moonbitstack/moontoken",
+  "moonbitstack/moontoken/vocab",
+  "moonbitstack/moontoken/refused",
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
+}
+
+options(
+  link: { "js": { "exports": [ "compose", "table", "spec" ], "format": "esm" } },
+)

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moontoken — the reference</title>
+<meta name="description" content="Every public type, function and value in moontoken.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+try{var n=performance.getEntriesByType("navigation")[0];if(n&&n.type==="reload")sessionStorage.removeItem("moontoken.press")}catch(e){}
+try{var p=sessionStorage.getItem("moontoken.press")}catch(e){p=null}
+var q=new URLSearchParams(location.search).get("press");
+if(q==="day"||q==="night")p=q;
+if(!p)p=matchMedia("(prefers-color-scheme: dark)").matches?"night":"day";
+document.documentElement.dataset.theme=p;
+</script>
+<script type="module" src="assets/scroll.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <a class="mark" href="index.html">moon<em>token</em></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="guide.html">Guide</a>
+    <a href="api.html" aria-current="page">API</a>
+    <a href="play.html">Table</a>
+  </nav>
+  <div class="tools">
+    <button id="theme" type="button" aria-pressed="false">
+      <span class="lamp" aria-hidden="true"></span><span class="name">Day</span>
+    </button>
+    <a class="icon-link" href="https://github.com/moonbitstack/moontoken" aria-label="moontoken on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="api">
+    <nav class="toc" aria-label="Packages">
+      <div class="h">Packages</div>
+      <div class="group"><b>moontoken</b>
+<a href="#moontoken-re-exported">Re-exported</a>
+<a href="#moontoken-tokenizer">Tokenizer</a>
+<a href="#moontoken-model">Model</a>
+</div>
+<div class="group"><b>moontoken/bpe</b>
+<a href="#bpe-bytebpe">ByteBpe</a>
+<a href="#bpe-decoding">Decoding</a>
+<a href="#bpe-options">Options</a>
+<a href="#bpe-wordbpe">WordBpe</a>
+<a href="#bpe-wordoptions">WordOptions</a>
+<a href="#bpe-functions">Functions</a>
+<a href="#bpe-values">Values</a>
+</div>
+<div class="group"><b>moontoken/normalizer</b>
+<a href="#normalizer-mode">Mode</a>
+<a href="#normalizer-normalizer">Normalizer</a>
+<a href="#normalizer-spec">Spec</a>
+<a href="#normalizer-stage">Stage</a>
+<a href="#normalizer-functions">Functions</a>
+</div>
+<div class="group"><b>moontoken/piece</b>
+<a href="#piece-kind">Kind</a>
+<a href="#piece-modelkind">ModelKind</a>
+<a href="#piece-piece">Piece</a>
+<a href="#piece-piecebpe">PieceBpe</a>
+<a href="#piece-pieces">Pieces</a>
+<a href="#piece-proto">Proto</a>
+<a href="#piece-span">Span</a>
+<a href="#piece-trainer">Trainer</a>
+<a href="#piece-unigram">Unigram</a>
+<a href="#piece-functions">Functions</a>
+</div>
+<div class="group"><b>moontoken/refused</b>
+<a href="#refused-refused">Refused</a>
+</div>
+<div class="group"><b>moontoken/special</b>
+<a href="#special-hit">Hit</a>
+<a href="#special-policy">Policy</a>
+<a href="#special-table">Table</a>
+<a href="#special-functions">Functions</a>
+</div>
+<div class="group"><b>moontoken/split</b>
+<a href="#split-digits">Digits</a>
+<a href="#split-split">Split</a>
+<a href="#split-functions">Functions</a>
+<a href="#split-values">Values</a>
+</div>
+<div class="group"><b>moontoken/vocab</b>
+<a href="#vocab-ranks">Ranks</a>
+</div>
+    </nav>
+    <div class="ref">
+      <h1 class="doc-title">The reference</h1>
+      <p class="standfirst">Every public type, function and value, generated from the packages' interfaces and the doc comments in their sources. Grouped by package, alphabetical within a package.</p>
+      <section id="moontoken-top"><h2>moontoken</h2><p>The tokenizer: one struct, its methods, and the ways to build one from a table, a SentencePiece model file or a tokenizer.json.</p>
+<h3 id="moontoken-re-exported">Re-exported</h3>
+<p>Reachable from this package as well; each type is documented in the package it comes from.</p>
+<pre class="sig"><code>pub using @refused {type Refused}</code></pre>
+<article id="moontoken-tokenizer"><h3><span class="kind">struct</span> Tokenizer</h3>
+<p>A tokenizer: a model, the tokens it reserves, and what may happen to them.  Text goes in and tokens come out, and the tokens come back as the same text, including the bytes that are not text on their own. The vocabulary is the caller&#x27;s: this library reads one it is handed and never opens a file.</p>
+<pre class="sig"><code>pub struct Tokenizer {
+  model : &amp;Model
+  specials : @special.Table
+  policy : @special.Policy
+}</code></pre>
+<div class="member" id="moontoken-tokenizer-byte-bpe"><pre class="sig"><code>pub fn Tokenizer::byte_bpe(ranks~ : @vocab.Ranks, split~ : @split.Split, specials? : @special.Table, policy? : @special.Policy, options? : @bpe.Options) -&gt; Self raise @refused.Refused</code></pre><p>A tokenizer over a byte-level byte-pair table.</p></div>
+<div class="member" id="moontoken-tokenizer-cl100k"><pre class="sig"><code>pub fn Tokenizer::cl100k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -&gt; Self raise @refused.Refused</code></pre><p>The tokens of <code>cl100k_base</code>, given the table of ranks that encoding uses.</p></div>
+<div class="member" id="moontoken-tokenizer-count"><pre class="sig"><code>pub fn Tokenizer::count(Self, StringView, special? : @special.Policy) -&gt; Int32 raise @refused.Refused</code></pre><p>How many tokens <code>text</code> holds.  This is <code>encode</code> with every reserved token recognised, which is the number a caller budgeting a context window wants: the reserved spellings cost their one token rather than being taken apart as text.</p></div>
+<div class="member" id="moontoken-tokenizer-decode"><pre class="sig"><code>pub fn Tokenizer::decode(Self, Array[Int32], reserved? : Bool) -&gt; String raise @refused.Refused</code></pre><p>The text a list of tokens stands for, with U+FFFD standing in for the byte sequences that are not text.</p></div>
+<div class="member" id="moontoken-tokenizer-decode-bytes"><pre class="sig"><code>pub fn Tokenizer::decode_bytes(Self, Array[Int32], reserved? : Bool) -&gt; Bytes raise @refused.Refused</code></pre><p>The bytes a list of tokens stands for.</p></div>
+<div class="member" id="moontoken-tokenizer-encode"><pre class="sig"><code>pub fn Tokenizer::encode(Self, StringView, special? : @special.Policy) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens <code>text</code> holds.  <code>special</code> overrides the policy this tokenizer was built with, for a caller that knows this one string came from a model that emits the reserved spelling itself.</p></div>
+<div class="member" id="moontoken-tokenizer-encode-ordinary"><pre class="sig"><code>pub fn Tokenizer::encode_ordinary(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of text that holds no reserved token, whatever the policy says.</p></div>
+<div class="member" id="moontoken-tokenizer-length"><pre class="sig"><code>pub fn Tokenizer::length(Self) -&gt; Int32</code></pre><p>How many tokens the vocabulary has, reserved ones not counted.</p></div>
+<div class="member" id="moontoken-tokenizer-new"><pre class="sig"><code>pub fn Tokenizer::new(model~ : &amp;Model, specials? : @special.Table, policy? : @special.Policy) -&gt; Self</code></pre><p>A tokenizer over any model.</p></div>
+<div class="member" id="moontoken-tokenizer-o200k"><pre class="sig"><code>pub fn Tokenizer::o200k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -&gt; Self raise @refused.Refused</code></pre><p>The tokens of <code>o200k_base</code>, given the table of ranks that encoding uses.</p></div>
+<div class="member" id="moontoken-tokenizer-of"><pre class="sig"><code>pub fn Tokenizer::of(@json.Json) -&gt; Self raise @refused.Refused</code></pre><p>A tokenizer from the <code>tokenizer.json</code> a model distribution ships.  The file describes a vocabulary, the merges over it, the normalisation, the cut, and the tokens the model reserves. Everything in it that this reader does not implement is refused by name rather than approximated.</p></div>
+<div class="member" id="moontoken-tokenizer-of-proto"><pre class="sig"><code>pub fn Tokenizer::of_proto(Bytes) -&gt; Self raise @refused.Refused</code></pre><p>A tokenizer from a sentence-piece model file.</p></div>
+<div class="member" id="moontoken-tokenizer-p50k-edit"><pre class="sig"><code>pub fn Tokenizer::p50k_edit(ranks~ : @vocab.Ranks, policy? : @special.Policy) -&gt; Self raise @refused.Refused</code></pre><p>The tokens of <code>p50k_edit</code>, given the table of ranks that encoding uses.</p></div>
+<div class="member" id="moontoken-tokenizer-parse"><pre class="sig"><code>pub fn Tokenizer::parse(StringView) -&gt; Self raise @refused.Refused</code></pre><p>A tokenizer from the text of a <code>tokenizer.json</code> file.</p></div>
+<div class="member" id="moontoken-tokenizer-piece-bpe"><pre class="sig"><code>pub fn Tokenizer::piece_bpe(pieces~ : @piece.Pieces, normalizer? : @normalizer.Normalizer, user_defined? : Array[Bytes], specials? : @special.Table, policy? : @special.Policy) -&gt; Self</code></pre><p>A tokenizer over a sentence-piece vocabulary that segments by merging neighbouring symbols.</p></div>
+<div class="member" id="moontoken-tokenizer-policy"><pre class="sig"><code>pub fn Tokenizer::policy(Self) -&gt; @special.Policy</code></pre><p>What this tokenizer does with the text that holds a reserved token.</p></div>
+<div class="member" id="moontoken-tokenizer-r50k"><pre class="sig"><code>pub fn Tokenizer::r50k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -&gt; Self raise @refused.Refused</code></pre><p>The tokens of <code>r50k_base</code>, given the table of ranks that encoding uses.</p></div>
+<div class="member" id="moontoken-tokenizer-token-bytes"><pre class="sig"><code>pub fn Tokenizer::token_bytes(Self, Int32) -&gt; Bytes?</code></pre><p>The bytes one token stands for.</p></div>
+<div class="member" id="moontoken-tokenizer-unigram"><pre class="sig"><code>pub fn Tokenizer::unigram(pieces~ : @piece.Pieces, normalizer? : @normalizer.Normalizer, specials? : @special.Table, policy? : @special.Policy) -&gt; Self</code></pre><p>A tokenizer over a sentence-piece vocabulary that segments by the most likely sequence of pieces.</p></div>
+<div class="member" id="moontoken-tokenizer-with-policy"><pre class="sig"><code>pub fn Tokenizer::with_policy(Self, @special.Policy) -&gt; Self</code></pre><p>A tokenizer with a different answer for the text that holds a reserved token.</p></div>
+</article>
+<article id="moontoken-model"><h3><span class="kind">trait</span> Model</h3>
+<p>What a tokenizer needs from a segmentation algorithm.  The four models this library ships are byte-level byte-pair encoding, the two sentence-piece models, and the pair-merge model of a <code>tokenizer.json</code> file. A caller with a fifth implements this and gets the whole surface: text in, tokens out, and the special tokens around them.</p>
+<pre class="sig"><code>pub(open) trait Model {
+  fn encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused
+  fn decode_bytes(Self, Array[Int32]) -&gt; Bytes raise @refused.Refused
+  fn decode(Self, Array[Int32]) -&gt; String raise @refused.Refused
+  fn token_bytes(Self, Int32) -&gt; Bytes?
+  fn length(Self) -&gt; Int32
+}</code></pre>
+<dl class="fields"><dt><code>decode</code></dt><dd><p>The text a list of tokens stands for.</p></dd><dt><code>decode_bytes</code></dt><dd><p>The bytes a list of tokens stands for.</p></dd><dt><code>encode</code></dt><dd><p>The tokens of text that holds no reserved token.</p></dd><dt><code>length</code></dt><dd><p>How many tokens the vocabulary has.</p></dd><dt><code>token_bytes</code></dt><dd><p>The bytes one token stands for, when the vocabulary has it.</p></dd></dl>
+</article>
+</section>
+<section id="bpe-top"><h2>moontoken/bpe</h2><p>Byte-pair merging: the byte-level model over a rank table, and the word-level one a tokenizer.json names.</p>
+<article id="bpe-bytebpe"><h3><span class="kind">struct</span> ByteBpe</h3>
+<p>A byte-level byte-pair encoder: text is cut into words, each word is taken as UTF-8 bytes, and the merge table turns those bytes into tokens.  Every byte has a token of its own, which is what makes the encoding total: any text, valid or not, has an encoding of at least one token per byte.</p>
+<pre class="sig"><code>pub struct ByteBpe {
+  ranks : @vocab.Ranks
+  split : @split.Split
+  cache : Map[String, Array[Int32]]
+  options : Options
+}</code></pre>
+<div class="member" id="bpe-bytebpe-decode"><pre class="sig"><code>pub fn ByteBpe::decode(Self, ArrayView[Int32]) -&gt; String raise @refused.Refused</code></pre><p>The text a list of tokens stands for, with U+FFFD standing in for the byte sequences that are not text.</p></div>
+<div class="member" id="bpe-bytebpe-decode-bytes"><pre class="sig"><code>pub fn ByteBpe::decode_bytes(Self, ArrayView[Int32]) -&gt; Bytes raise @refused.Refused</code></pre><p>The bytes a list of tokens stands for.  The result need not be valid UTF-8: a caller that cut a character in half gets the two halves back, which is what makes re-encoding exact.</p></div>
+<div class="member" id="bpe-bytebpe-encode"><pre class="sig"><code>pub fn ByteBpe::encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of <code>text</code>.</p></div>
+<div class="member" id="bpe-bytebpe-encode-word"><pre class="sig"><code>pub fn ByteBpe::encode_word(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of one word, without cutting it first.</p></div>
+<div class="member" id="bpe-bytebpe-length"><pre class="sig"><code>pub fn ByteBpe::length(Self) -&gt; Int32</code></pre><p>How many tokens the vocabulary has.</p></div>
+<div class="member" id="bpe-bytebpe-new"><pre class="sig"><code>pub fn ByteBpe::new(ranks~ : @vocab.Ranks, split~ : @split.Split, options? : Options) -&gt; Self raise @refused.Refused</code></pre><p>Builds an encoder over a table of ranks.  Raises when a single byte has no token, because such a table cannot encode text that happens to contain that byte, and finding out mid-sentence is worse than finding out here.</p></div>
+<div class="member" id="bpe-bytebpe-token-bytes"><pre class="sig"><code>pub fn ByteBpe::token_bytes(Self, Int32) -&gt; Bytes?</code></pre><p>The bytes one token stands for.</p></div>
+</article>
+<article id="bpe-decoding"><h3><span class="kind">enum</span> Decoding</h3>
+<p>How a token&#x27;s spelling turns back into text.</p>
+<pre class="sig"><code>pub(all) enum Decoding {
+  Alphabet
+  Marker
+  Plain
+}</code></pre>
+<dl class="fields"><dt><code>Alphabet</code></dt><dd><p> The spelling is the byte-level alphabet, so every character stands for one byte of the original.</p></dd><dt><code>Marker</code></dt><dd><p> The spelling uses U+2581 where the text had a space.</p></dd><dt><code>Plain</code></dt><dd><p> The spelling is the text.</p></dd></dl>
+</article>
+<article id="bpe-options"><h3><span class="kind">struct</span> Options</h3>
+<p>Settings that change the work rather than the result.</p>
+<pre class="sig"><code>pub(all) struct Options {
+  cache : Bool
+  cache_limit : Int32
+}</code></pre>
+<dl class="fields"><dt><code>cache</code></dt><dd><p> Remember the tokens of the words already seen. A tokenizer sees the same words over and over, so the table pays for itself on the second occurrence, and it never changes a result.</p></dd><dt><code>cache_limit</code></dt><dd><p> How many words to remember before dropping the whole table. Roughly the size at which a page of text repeats itself.</p></dd></dl>
+</article>
+<article id="bpe-wordbpe"><h3><span class="kind">struct</span> WordBpe</h3>
+<p>A model that merges neighbouring tokens in the order a list of rules gives.  This is the model a <code>tokenizer.json</code> file describes: a vocabulary of spellings, a list of merges, and the order they were learned in. It differs from a byte-level table in that the order is a list rather than a rank, and in that a character the vocabulary lacks is a hole rather than an impossibility.</p>
+<pre class="sig"><code>pub struct WordBpe {
+  vocab : Map[String, Int32]
+  text_of : Map[Int32, String]
+  chars : Map[Char, Int32]
+  merges : Map[Int32, Map[Int32, Int32]]
+  results : Array[Int32]
+  unk_id : Int32
+  byte_ids : Array[Int32]
+  byte_fallback : Bool
+  fuse_unk : Bool
+  ignore_merges : Bool
+  decoding : Decoding
+  normalizer : @normalizer.Normalizer
+  split : @split.Split
+  alphabet : Array[Char]
+  reverse : Map[Int32, Int32]
+}</code></pre>
+<div class="member" id="bpe-wordbpe-decode"><pre class="sig"><code>pub fn WordBpe::decode(Self, ArrayView[Int32]) -&gt; String raise @refused.Refused</code></pre><p>The text a list of tokens stands for.</p></div>
+<div class="member" id="bpe-wordbpe-decode-bytes"><pre class="sig"><code>pub fn WordBpe::decode_bytes(Self, ArrayView[Int32]) -&gt; Bytes raise @refused.Refused</code></pre><p>The bytes a list of tokens stands for.</p></div>
+<div class="member" id="bpe-wordbpe-encode"><pre class="sig"><code>pub fn WordBpe::encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of <code>text</code>.</p></div>
+<div class="member" id="bpe-wordbpe-encode-word"><pre class="sig"><code>pub fn WordBpe::encode_word(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of one word, without cutting it first.</p></div>
+<div class="member" id="bpe-wordbpe-length"><pre class="sig"><code>pub fn WordBpe::length(Self) -&gt; Int32</code></pre><p>How many tokens the vocabulary has.</p></div>
+<div class="member" id="bpe-wordbpe-new"><pre class="sig"><code>pub fn WordBpe::new(vocab~ : Array[(String, Int32)], merges~ : Array[(String, String)], options? : WordOptions, decoding? : Decoding, normalizer? : @normalizer.Normalizer, split? : @split.Split) -&gt; Self raise @refused.Refused</code></pre><p>Builds a model from a vocabulary and the merges between its tokens.  <code>merges</code> are pairs of spellings in the order the trainer learned them; a merge whose sides are not both in the vocabulary is refused, because the result would be a rule that can never fire.</p></div>
+<div class="member" id="bpe-wordbpe-size"><pre class="sig"><code>pub fn WordBpe::size(Self) -&gt; Int32</code></pre><p>The tokens of <code>text</code>, cut by the pre-tokenizer the file named.</p></div>
+<div class="member" id="bpe-wordbpe-token-bytes"><pre class="sig"><code>pub fn WordBpe::token_bytes(Self, Int32) -&gt; Bytes?</code></pre><p>The spelling of one token.</p></div>
+</article>
+<article id="bpe-wordoptions"><h3><span class="kind">struct</span> WordOptions</h3>
+<p>Settings of a word-level byte-pair model.</p>
+<pre class="sig"><code>pub(all) struct WordOptions {
+  unk_id : Int32
+  byte_fallback : Bool
+  ignore_merges : Bool
+}</code></pre>
+<dl class="fields"><dt><code>byte_fallback</code></dt><dd><p> Whether a character the vocabulary lacks is spelled out as bytes.</p></dd><dt><code>ignore_merges</code></dt><dd><p> Whether a token chooses the whole word over the merges that would cut it.</p></dd><dt><code>unk_id</code></dt><dd><p> The id of the token that stands in for a character the vocabulary lacks.</p></dd></dl>
+</article>
+<h3 id="bpe-functions">Functions</h3>
+<div class="member" id="bpe-byte-alphabet"><pre class="sig"><code>pub fn byte_alphabet() -&gt; Array[Char]</code></pre><p>The alphabet the byte-level version of this model writes its vocabulary in: one character per byte, indexed by the byte.  The bytes that are printable in Latin-1 keep their own character and the rest are laid out over the code points above U+0100, so that a token never holds a control character or half of a character.</p></div>
+<h3 id="bpe-values">Values</h3>
+<div class="member" id="bpe-options"><pre class="sig"><code>pub let options : Options</code></pre></div>
+<div class="member" id="bpe-word-options"><pre class="sig"><code>pub let word_options : WordOptions</code></pre></div>
+</section>
+<section id="normalizer-top"><h2>moontoken/normalizer</h2><p>The rule table a SentencePiece model carries, and the operations a tokenizer.json lists.</p>
+<article id="normalizer-mode"><h3><span class="kind">enum</span> Mode</h3>
+<p>Which of the three normalisations this is.</p>
+<pre class="sig"><code>pub enum Mode {
+  Identity
+  Rule
+  Chain
+}</code></pre>
+</article>
+<article id="normalizer-normalizer"><h3><span class="kind">struct</span> Normalizer</h3>
+<p>The normalisation applied before segmentation.  A model file carries its own rule table, which is why this is not just a list of operations: the table is a trie of a few thousand replacements, and applying it is what makes two spellings of one character segment alike.</p>
+<pre class="sig"><code>pub struct Normalizer {
+  mode : Mode
+  add_dummy_prefix : Bool
+  remove_extra_whitespaces : Bool
+  escape_whitespaces : Bool
+  treat_whitespace_as_suffix : Bool
+  trie : Array[UInt32]
+  replacements : Bytes
+  user_defined : Map[Int32, Array[Bytes]]
+  stages : Array[Stage]
+}</code></pre>
+<div class="member" id="normalizer-normalizer-apply"><pre class="sig"><code>pub fn Normalizer::apply(Self, StringView) -&gt; String raise @refused.Refused</code></pre><p>The text as it goes into segmentation.</p></div>
+<div class="member" id="normalizer-normalizer-chain"><pre class="sig"><code>pub fn Normalizer::chain(Array[Stage]) -&gt; Self</code></pre><p>A normalisation from a list of operations, applied in order.</p></div>
+<div class="member" id="normalizer-normalizer-identity"><pre class="sig"><code>pub fn Normalizer::identity() -&gt; Self</code></pre><p>A normalisation that changes nothing.</p></div>
+<div class="member" id="normalizer-normalizer-rule"><pre class="sig"><code>pub fn Normalizer::rule(spec~ : Spec, user_defined? : Array[Bytes], treat_whitespace_as_suffix? : Bool) -&gt; Self raise @refused.Refused</code></pre><p>The rule table of a model file.  <code>user_defined</code> are the symbols the caller reserved: the normaliser hands them through untouched, so that a piece spelled the way the caller wrote it stays findable.</p></div>
+<div class="member" id="normalizer-normalizer-strips-every-leading-marker"><pre class="sig"><code>pub fn Normalizer::strips_every_leading_marker(Self) -&gt; Bool</code></pre><p>Whether every marker at the front comes off, not only the first.</p></div>
+<div class="member" id="normalizer-normalizer-strips-leading-marker"><pre class="sig"><code>pub fn Normalizer::strips_leading_marker(Self) -&gt; Bool</code></pre><p>Whether a word-break marker at the very front of the text stands for a space the text does not have, rather than one it does.  A model that adds a leading space puts a marker there on the way in, and taking it off again on the way out is what makes the round trip exact. A model that also drops runs of whitespace keeps taking them off until the text has a character in it, because everything it saw at the front was whitespace it meant to discard.</p></div>
+</article>
+<article id="normalizer-spec"><h3><span class="kind">struct</span> Spec</h3>
+<p>The normalisation a model expects: the rule table it was trained with, and the three switches around whitespace.</p>
+<pre class="sig"><code>pub(all) struct Spec {
+  name : String
+  charsmap : Bytes
+  add_dummy_prefix : Bool
+  remove_extra_whitespaces : Bool
+  escape_whitespaces : Bool
+}</code></pre>
+</article>
+<article id="normalizer-stage"><h3><span class="kind">enum</span> Stage</h3>
+<p>One step of a normalisation that is a list of Unicode operations rather than a rule table.</p>
+<pre class="sig"><code>pub(all) enum Stage {
+  Nfc
+  Nfd
+  Nfkc
+  Nfkd
+  Lowercase
+  Prepend(String)
+  Pad(String)
+  Replace(String, String)
+  Trim
+  EscapeSpace
+}</code></pre>
+<dl class="fields"><dt><code>EscapeSpace</code></dt><dd><p> Replace a space with U+2581, the marker pieces use for a word break.</p></dd><dt><code>Lowercase</code></dt><dd><p> Unicode lower case.</p></dd><dt><code>Nfc</code></dt><dd><p> Canonical composition.</p></dd><dt><code>Nfd</code></dt><dd><p> Canonical decomposition.</p></dd><dt><code>Nfkc</code></dt><dd><p> Compatibility composition.</p></dd><dt><code>Nfkd</code></dt><dd><p> Compatibility decomposition.</p></dd><dt><code>Pad</code></dt><dd><p> Put this text in front unless the text already starts with it, which is how a cut that keeps its word break stays honest about a text that has one already.</p></dd><dt><code>Prepend</code></dt><dd><p> Put this text in front.</p></dd><dt><code>Replace</code></dt><dd><p> Replace every occurrence of the first text with the second.</p></dd><dt><code>Trim</code></dt><dd><p> Drop whitespace from both ends.</p></dd></dl>
+</article>
+<h3 id="normalizer-functions">Functions</h3>
+<div class="member" id="normalizer-longest-reserved"><pre class="sig"><code>pub fn longest_reserved(Map[Int32, Array[Bytes]], Bytes, Int32) -&gt; Int32?</code></pre><p>The number of bytes of the longest reserved symbol that starts at <code>at</code>.</p></div>
+<div class="member" id="normalizer-user-index"><pre class="sig"><code>pub fn user_index(Array[Bytes]) -&gt; Map[Int32, Array[Bytes]]</code></pre><p>An index of the symbols a caller reserved, by their first byte, so that finding the one at a position costs a map lookup rather than a scan of the whole list.</p></div>
+</section>
+<section id="piece-top"><h2>moontoken/piece</h2><p>The SentencePiece model file: its pieces, both trainer types, and the trie it compiles to.</p>
+<article id="piece-kind"><h3><span class="kind">enum</span> Kind</h3>
+<p>What a piece is for.</p>
+<pre class="sig"><code>pub(all) enum Kind {
+  Normal
+  Unknown
+  Control
+  UserDefined
+  Unused
+  RawByte
+}</code></pre>
+<dl class="fields"><dt><code>Control</code></dt><dd><p> A marker such as <code>&lt;s&gt;</code>: never produced from text, never decoded.</p></dd><dt><code>Normal</code></dt><dd><p>segmentation, whether it survives decoding, and whether it stands for a byte.  An ordinary piece.</p></dd><dt><code>RawByte</code></dt><dd><p> One byte, written <code>&lt;0x41&gt;</code>, used when a character has no piece.</p></dd><dt><code>Unknown</code></dt><dd><p> The piece that stands in for text nothing else covers.</p></dd><dt><code>Unused</code></dt><dd><p> A piece kept in the vocabulary but never produced.</p></dd><dt><code>UserDefined</code></dt><dd><p> A piece the caller declared, which is matched before any other rule.</p></dd></dl>
+</article>
+<article id="piece-modelkind"><h3><span class="kind">enum</span> ModelKind</h3>
+<p>What kind of model a file was trained as.</p>
+<pre class="sig"><code>pub(all) enum ModelKind {
+  Unigram
+  Bpe
+  Word
+  Char
+}</code></pre>
+<dl class="fields"><dt><code>Bpe</code></dt><dd><p> Segmentation by merged pairs, the sentence-piece flavour.</p></dd><dt><code>Char</code></dt><dd><p> One piece per character.</p></dd><dt><code>Unigram</code></dt><dd><p> Segmentation by the most likely sequence of pieces.</p></dd><dt><code>Word</code></dt><dd><p> One piece per word.</p></dd></dl>
+</article>
+<article id="piece-piece"><h3><span class="kind">struct</span> Piece</h3>
+<p>One entry of a vocabulary: the text it stands for, the log probability the trainer gave it, and what it is.</p>
+<pre class="sig"><code>pub(all) struct Piece {
+  text : Bytes
+  score : Float
+  kind : Kind
+}</code></pre>
+</article>
+<article id="piece-piecebpe"><h3><span class="kind">struct</span> PieceBpe</h3>
+<p>A model that segments text by merging neighbouring symbols, the sentence-piece flavour: symbols are merged in order of the score of the piece they would form, until no merge is left that the vocabulary has.</p>
+<pre class="sig"><code>pub struct PieceBpe {
+  pieces : Pieces
+  normalizer : @normalizer.Normalizer
+  user_defined : Map[Int32, Array[Bytes]]
+}</code></pre>
+<div class="member" id="piece-piecebpe-decode"><pre class="sig"><code>pub fn PieceBpe::decode(Self, ArrayView[Int32]) -&gt; String raise @refused.Refused</code></pre><p>The text a list of tokens stands for.</p></div>
+<div class="member" id="piece-piecebpe-encode"><pre class="sig"><code>pub fn PieceBpe::encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of <code>text</code>.</p></div>
+<div class="member" id="piece-piecebpe-length"><pre class="sig"><code>pub fn PieceBpe::length(Self) -&gt; Int32</code></pre><p>How many pieces the vocabulary has.</p></div>
+<div class="member" id="piece-piecebpe-new"><pre class="sig"><code>pub fn PieceBpe::new(pieces~ : Pieces, normalizer? : @normalizer.Normalizer, user_defined? : Array[Bytes]) -&gt; Self</code></pre></div>
+<div class="member" id="piece-piecebpe-pieces"><pre class="sig"><code>pub fn PieceBpe::pieces(Self) -&gt; Pieces</code></pre><p>The vocabulary.</p></div>
+<div class="member" id="piece-piecebpe-token-bytes"><pre class="sig"><code>pub fn PieceBpe::token_bytes(Self, Int32) -&gt; Bytes?</code></pre><p>The token a piece id stands for.</p></div>
+</article>
+<article id="piece-pieces"><h3><span class="kind">struct</span> Pieces</h3>
+<p>A vocabulary of pieces, with the indexes a model needs: one for the pieces segmentation may use, one for everything.</p>
+<pre class="sig"><code>pub struct Pieces {
+  items : Array[Piece]
+  exact : Map[Bytes, Int32]
+  lattice : Map[Bytes, Int32]
+  longest : Int32
+  unk_id : Int32
+  unk_surface : Bytes
+  byte_ids : Array[Int32]
+  byte_fallback : Bool
+}</code></pre>
+<div class="member" id="piece-pieces-at"><pre class="sig"><code>pub fn Pieces::at(Self, Int32) -&gt; Piece raise @refused.Refused</code></pre><p>The piece with this id.</p></div>
+<div class="member" id="piece-pieces-byte-fallback"><pre class="sig"><code>pub fn Pieces::byte_fallback(Self) -&gt; Bool</code></pre><p>Whether a character with no piece may be spelled out as bytes.</p></div>
+<div class="member" id="piece-pieces-byte-id"><pre class="sig"><code>pub fn Pieces::byte_id(Self, Int32) -&gt; Int32</code></pre><p>The id of the piece for one byte, or -1.</p></div>
+<div class="member" id="piece-pieces-id"><pre class="sig"><code>pub fn Pieces::id(Self, BytesView) -&gt; Int32?</code></pre><p>The id of a piece, whatever kind it is.</p></div>
+<div class="member" id="piece-pieces-lattice-id"><pre class="sig"><code>pub fn Pieces::lattice_id(Self, BytesView) -&gt; Int32?</code></pre><p>The id of a piece segmentation may use: an ordinary one or a declared one.</p></div>
+<div class="member" id="piece-pieces-length"><pre class="sig"><code>pub fn Pieces::length(Self) -&gt; Int32</code></pre><p>How many pieces there are; ids run from 0 to this less one.</p></div>
+<div class="member" id="piece-pieces-longest"><pre class="sig"><code>pub fn Pieces::longest(Self) -&gt; Int32</code></pre><p>The longest piece segmentation may use, in bytes.</p></div>
+<div class="member" id="piece-pieces-new"><pre class="sig"><code>pub fn Pieces::new(items~ : Array[Piece], unk_id? : Int32, unk_surface? : String, byte_fallback? : Bool) -&gt; Self raise @refused.Refused</code></pre><p>Builds the tables over a list of pieces.  <code>unk_id</code> is the piece that stands in for text nothing covers, and <code>byte_fallback</code> says whether the model can spell a character out as bytes.</p></div>
+<div class="member" id="piece-pieces-unk-id"><pre class="sig"><code>pub fn Pieces::unk_id(Self) -&gt; Int32</code></pre><p>The id of the piece that stands in for uncovered text, or -1.</p></div>
+<div class="member" id="piece-pieces-unk-surface"><pre class="sig"><code>pub fn Pieces::unk_surface(Self) -&gt; Bytes</code></pre><p>The text an unknown token stands for when it is decoded.</p></div>
+</article>
+<article id="piece-proto"><h3><span class="kind">struct</span> Proto</h3>
+<p>A model file: its pieces, how it was trained, and how text is normalised before segmentation.</p>
+<pre class="sig"><code>pub struct Proto {
+  pieces : Pieces
+  trainer : Trainer
+  normalizer : @normalizer.Spec
+}</code></pre>
+<div class="member" id="piece-proto-normalizer"><pre class="sig"><code>pub fn Proto::normalizer(Self) -&gt; @normalizer.Normalizer raise @refused.Refused</code></pre><p>The normalisation the model expects, ready to apply.</p></div>
+<div class="member" id="piece-proto-of"><pre class="sig"><code>pub fn Proto::of(Bytes) -&gt; Self raise @refused.Refused</code></pre><p>Reads a model file.</p></div>
+<div class="member" id="piece-proto-pieces"><pre class="sig"><code>pub fn Proto::pieces(Self) -&gt; Pieces</code></pre><p>The vocabulary.</p></div>
+<div class="member" id="piece-proto-spec"><pre class="sig"><code>pub fn Proto::spec(Self) -&gt; @normalizer.Spec</code></pre><p>The normalisation the model expects, as written in the file.</p></div>
+<div class="member" id="piece-proto-trainer"><pre class="sig"><code>pub fn Proto::trainer(Self) -&gt; Trainer</code></pre><p>How the model was trained.</p></div>
+<div class="member" id="piece-proto-user-defined"><pre class="sig"><code>pub fn Proto::user_defined(Self) -&gt; Array[Bytes]</code></pre><p>The symbols the caller reserved, in the order the file lists them.</p></div>
+</article>
+<article id="piece-span"><h3><span class="kind">struct</span> Span</h3>
+<p>What segmentation produced, before the tokens a model reserves are dealt with: a span of the normalised bytes and the piece that covers it.</p>
+<pre class="sig"><code>pub struct Span {
+  start : Int32
+  stop : Int32
+  id : Int32
+}</code></pre>
+</article>
+<article id="piece-trainer"><h3><span class="kind">struct</span> Trainer</h3>
+<p>The settings a model was trained with that change how it runs.</p>
+<pre class="sig"><code>pub(all) struct Trainer {
+  kind : ModelKind
+  unk_id : Int32
+  byte_fallback : Bool
+  treat_whitespace_as_suffix : Bool
+  unk_piece : String
+  unk_surface : String
+}</code></pre>
+</article>
+<article id="piece-unigram"><h3><span class="kind">struct</span> Unigram</h3>
+<p>A model that segments text by the most likely sequence of pieces.  Each piece carries the log probability the trainer measured for it, and the segmentation is the one whose pieces add up to the largest total. Text that no piece covers becomes the unknown piece, or, when the model can spell it out, one token per byte.</p>
+<pre class="sig"><code>pub struct Unigram {
+  pieces : Pieces
+  normalizer : @normalizer.Normalizer
+  min_score : Float
+}</code></pre>
+<div class="member" id="piece-unigram-decode"><pre class="sig"><code>pub fn Unigram::decode(Self, ArrayView[Int32]) -&gt; String raise @refused.Refused</code></pre><p>The text a list of tokens stands for.</p></div>
+<div class="member" id="piece-unigram-encode"><pre class="sig"><code>pub fn Unigram::encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of <code>text</code>.</p></div>
+<div class="member" id="piece-unigram-length"><pre class="sig"><code>pub fn Unigram::length(Self) -&gt; Int32</code></pre><p>How many pieces the vocabulary has.</p></div>
+<div class="member" id="piece-unigram-new"><pre class="sig"><code>pub fn Unigram::new(pieces~ : Pieces, normalizer? : @normalizer.Normalizer) -&gt; Self</code></pre><p>Builds the model over a vocabulary.  Raises when the vocabulary has neither an unknown piece nor byte fallback, because text outside the vocabulary would then have no encoding at all.</p></div>
+<div class="member" id="piece-unigram-pieces"><pre class="sig"><code>pub fn Unigram::pieces(Self) -&gt; Pieces</code></pre><p>The vocabulary.</p></div>
+<div class="member" id="piece-unigram-token-bytes"><pre class="sig"><code>pub fn Unigram::token_bytes(Self, Int32) -&gt; Bytes?</code></pre><p>The token a piece id stands for, for callers that want the spelling.</p></div>
+</article>
+<h3 id="piece-functions">Functions</h3>
+<div class="member" id="piece-byte-of-piece"><pre class="sig"><code>pub fn byte_of_piece(Bytes) -&gt; Int32?</code></pre><p>The byte a <code>&lt;0xNN&gt;</code> spelling stands for, when it is one.</p></div>
+<div class="member" id="piece-byte-piece"><pre class="sig"><code>pub fn byte_piece(Int32) -&gt; String</code></pre><p>The text of the piece that stands for one byte.</p></div>
+</section>
+<section id="refused-top"><h2>moontoken/refused</h2><p>The one error shape the library raises, with the offset, the name or the id that went wrong.</p>
+<article id="refused-refused"><h3><span class="kind">suberror</span> Refused</h3>
+<p>Why an input was refused.  <code>Malformed</code> carries the offset, <code>Absent</code> the name of what was missing, and <code>Missing</code> the id that is not in the vocabulary, so that a caller reading a table of a hundred thousand entries can find the one that broke.</p>
+<pre class="sig"><code>pub(all) suberror Refused {
+  Malformed(String, Int32)
+  Absent(String)
+  Unsupported(String)
+  Missing(Int32)
+  Disallowed(String, Int32)
+}</code></pre>
+<dl class="fields"><dt><code>Absent</code></dt><dd><p> A required piece of the input is not there.</p></dd><dt><code>Disallowed</code></dt><dd><p> The text holds a token that the caller did not allow here.</p></dd><dt><code>Malformed</code></dt><dd><p> The bytes are not the shape this reader accepts.</p></dd><dt><code>Missing</code></dt><dd><p> There is no token with this id.</p></dd><dt><code>Unsupported</code></dt><dd><p> The input asks for something this reader does not implement.</p></dd></dl>
+</article>
+</section>
+<section id="special-top"><h2>moontoken/special</h2><p>The tokens a model reserves, the table that holds them, and the policy for text that contains one.</p>
+<article id="special-hit"><h3><span class="kind">struct</span> Hit</h3>
+<p>Where a special token was found.</p>
+<pre class="sig"><code>pub(all) struct Hit {
+  start : Int32
+  text : String
+  id : Int32
+}</code></pre>
+<dl class="fields"><dt><code>id</code></dt><dd><p> The id it stands for.</p></dd><dt><code>start</code></dt><dd><p> The offset of its first code unit.</p></dd><dt><code>text</code></dt><dd><p> The text it is written as.</p></dd></dl>
+</article>
+<article id="special-policy"><h3><span class="kind">enum</span> Policy</h3>
+<p>What may happen to the tokens a model reserves.  A model reserves a handful of spellings, <code>&lt;|endoftext|&gt;</code> and the like, that stand for structure rather than text. Whether text that happens to contain one is taken as the token, taken as text, or refused is the caller&#x27;s decision, never the library&#x27;s.</p>
+<pre class="sig"><code>pub(all) enum Policy {
+  Refuse
+  Allow
+  Ignore
+  Only(Array[String])
+}</code></pre>
+<dl class="fields"><dt><code>Allow</code></dt><dd><p> Every reserved token in the table is recognised.</p></dd><dt><code>Ignore</code></dt><dd><p> No reserved token is recognised; text that holds one is encoded as text.</p></dd><dt><code>Only</code></dt><dd><p> Only the named tokens are recognised, and the rest are refused.</p></dd><dt><code>Refuse</code></dt><dd><p> No reserved token is recognised, and text that holds one is refused.</p></dd></dl>
+<div class="member" id="special-policy-allows"><pre class="sig"><code>pub fn Policy::allows(Self, StringView) -&gt; Bool</code></pre><p>Whether <code>policy</code> recognises <code>text</code>.</p></div>
+<div class="member" id="special-policy-recognizes"><pre class="sig"><code>pub fn Policy::recognizes(Self) -&gt; Bool</code></pre><p>Whether the policy looks for reserved tokens at all.</p></div>
+</article>
+<article id="special-table"><h3><span class="kind">struct</span> Table</h3>
+<p>The tokens a model reserves, by spelling.</p>
+<pre class="sig"><code>pub struct Table {
+  texts : Array[String]
+  ids : Array[Int32]
+  by_first : Map[Int32, Array[Int32]]
+  index_of : Map[String, Int32]
+  text_of : Map[Int32, String]
+}</code></pre>
+<div class="member" id="special-table-add"><pre class="sig"><code>pub fn Table::add(Self, String, Int32) -&gt; Unit</code></pre><p>Adds a spelling. An empty spelling is ignored: it would match everywhere.</p></div>
+<div class="member" id="special-table-empty"><pre class="sig"><code>pub fn Table::empty() -&gt; Self</code></pre><p>A table with nothing in it.</p></div>
+<div class="member" id="special-table-find"><pre class="sig"><code>pub fn Table::find(Self, StringView, Int32) -&gt; Hit?</code></pre><p>The longest reserved token at or after <code>from</code>, and where it stands.</p></div>
+<div class="member" id="special-table-id"><pre class="sig"><code>pub fn Table::id(Self, StringView) -&gt; Int32?</code></pre><p>The id of a spelling.</p></div>
+<div class="member" id="special-table-length"><pre class="sig"><code>pub fn Table::length(Self) -&gt; Int32</code></pre><p>How many tokens the table holds.</p></div>
+<div class="member" id="special-table-of"><pre class="sig"><code>pub fn Table::of(Array[(String, Int32)]) -&gt; Self</code></pre><p>A table from spellings and their ids.  A spelling that appears twice keeps the first id, which is how a model file that lists the same control token twice still has one answer.</p></div>
+<div class="member" id="special-table-text"><pre class="sig"><code>pub fn Table::text(Self, Int32) -&gt; String?</code></pre><p>The spelling of an id, when the id is one the table holds.</p></div>
+</article>
+<h3 id="special-functions">Functions</h3>
+<div class="member" id="special-cl100k-base"><pre class="sig"><code>pub fn cl100k_base() -&gt; Table</code></pre><p>The special tokens of <code>cl100k_base</code>, and of <code>o200k_base</code> and the two earlier encodings, which share the first one.  The ids are the ones the published encodings give them, and the file of mergeable ranks does not carry them: they are part of the encoding&#x27;s definition, not of the table a caller loads.</p></div>
+<div class="member" id="special-o200k-base"><pre class="sig"><code>pub fn o200k_base() -&gt; Table</code></pre><p>The special tokens of <code>o200k_base</code>.</p></div>
+<div class="member" id="special-p50k-edit"><pre class="sig"><code>pub fn p50k_edit() -&gt; Table</code></pre><p>The special tokens of <code>p50k_edit</code>, the pair of <code>r50k_base</code> plus the three fill-in-the-middle markers.</p></div>
+<div class="member" id="special-r50k-base"><pre class="sig"><code>pub fn r50k_base() -&gt; Table</code></pre><p>The special token of <code>r50k_base</code> and <code>p50k_base</code>.</p></div>
+</section>
+<section id="split-top"><h2>moontoken/split</h2><p>The pre-tokenizers of the published encodings, written as scanners, and the split a caller can compose.</p>
+<article id="split-digits"><h3><span class="kind">struct</span> Digits</h3>
+<p>Whether digits are cut one at a time or as a run.</p>
+<pre class="sig"><code>pub(all) struct Digits {
+  individual : Bool
+}</code></pre>
+</article>
+<article id="split-split"><h3><span class="kind">enum</span> Split</h3>
+<p>How text is cut into the words a model is applied to.  The three named rules are the published pre-tokenizers of the byte-level encodings: <code>r50k</code>/<code>p50k</code>/<code>gpt2</code>, <code>cl100k_base</code> and <code>o200k_base</code>. They are scanners here rather than regular expressions because the patterns lean on lookahead and possessive quantifiers, and because a tokenizer runs them once per word over the whole input.</p>
+<pre class="sig"><code>pub(all) enum Split {
+  Whole
+  Gpt2
+  Cl100k
+  O200k
+  Whitespace
+  Metaspace
+  Digits(Digits)
+  Sequence(Array[Split])
+}</code></pre>
+<dl class="fields"><dt><code>Cl100k</code></dt><dd><p> <code>&#x27;(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}++|\p{N}{1,3}+| ?[^\s\p{L}\p{N}]++[\r\n]*+|\s++$|\s*[\r\n]|\s+(?!\S)|\s</code></p></dd><dt><code>Digits</code></dt><dd><p> Digits on their own, either one by one or as runs.</p></dd><dt><code>Gpt2</code></dt><dd><p> <code>&#x27;(?:[sdmt]|ll|ve|re)| ?\p{L}++| ?\p{N}++| ?[^\s\p{L}\p{N}]++|\s++$|\s+(?!\S)|\s</code></p></dd><dt><code>Metaspace</code></dt><dd><p> A word starts at every U+2581, the marker that whitespace becomes during normalisation. Text that arrived unescaped keeps its spaces inside words.</p></dd><dt><code>O200k</code></dt><dd><p> The <code>o200k_base</code> rule, which separates runs of capitals from runs of lower-case letters, so that <code>word</code> and <code>Word</code> are different words.</p></dd><dt><code>Sequence</code></dt><dd><p> The rules applied one after another.</p></dd><dt><code>Whitespace</code></dt><dd><p> Runs of non-whitespace; the whitespace between them is dropped.</p></dd><dt><code>Whole</code></dt><dd><p> The whole text is one word.</p></dd></dl>
+<div class="member" id="split-split-pieces"><pre class="sig"><code>pub fn Split::pieces(Self, StringView) -&gt; Array[StringView]</code></pre><p>The words of <code>text</code>, in order. Joining them gives back the text under every rule but <code>Whitespace</code>, which drops what it splits on.</p></div>
+</article>
+<h3 id="split-functions">Functions</h3>
+<div class="member" id="split-utf8-width-at"><pre class="sig"><code>pub fn utf8_width_at(Bytes, Int32) -&gt; Int32</code></pre><p>The width of the UTF-8 sequence that starts at <code>at</code>, or 0 when the bytes there are not one.</p></div>
+<h3 id="split-values">Values</h3>
+<div class="member" id="split-digits-individual"><pre class="sig"><code>pub let digits_individual : Digits</code></pre></div>
+<div class="member" id="split-digits-run"><pre class="sig"><code>pub let digits_run : Digits</code></pre></div>
+</section>
+<section id="vocab-top"><h2>moontoken/vocab</h2><p>A rank table: from the base64 text a model publishes, from pairs, or empty and filled by hand.</p>
+<article id="vocab-ranks"><h3><span class="kind">struct</span> Ranks</h3>
+<p>The mergeable ranks of a byte-level encoding: byte sequences and the order in which the trainer picked them.  A rank doubles as the token id, which is how the published encodings are numbered, and the reason a table loaded here needs no second index.</p>
+<pre class="sig"><code>pub struct Ranks {
+  encoder : Map[Bytes, Int32]
+  decoder : Map[Int32, Bytes]
+}</code></pre>
+<div class="member" id="vocab-ranks-empty"><pre class="sig"><code>pub fn Ranks::empty() -&gt; Self</code></pre><p>An empty table.</p></div>
+<div class="member" id="vocab-ranks-from-pairs"><pre class="sig"><code>pub fn Ranks::from_pairs(Array[(Bytes, Int32)]) -&gt; Self raise @refused.Refused</code></pre><p>A table from tokens and their ranks.  Raises when one token or one rank appears twice: a table like that has no single answer for an id, and the encodings never contain one.</p></div>
+<div class="member" id="vocab-ranks-from-tiktoken"><pre class="sig"><code>pub fn Ranks::from_tiktoken(StringView) -&gt; Self raise @refused.Refused</code></pre><p>Reads the layout the published encodings ship: one <code>base64 rank</code> pair per line, in whatever order.</p></div>
+<div class="member" id="vocab-ranks-get"><pre class="sig"><code>pub fn Ranks::get(Self, BytesView) -&gt; Int32?</code></pre><p>The rank of a token, or <code>None</code> when the table does not have it.</p></div>
+<div class="member" id="vocab-ranks-length"><pre class="sig"><code>pub fn Ranks::length(Self) -&gt; Int32</code></pre><p>How many tokens the table holds.</p></div>
+<div class="member" id="vocab-ranks-missing-bytes"><pre class="sig"><code>pub fn Ranks::missing_bytes(Self) -&gt; Array[Int32]</code></pre><p>The bytes that have no token of their own.  A byte-level encoding is total over byte strings only when every byte is in the table; without this check an encoding built from a partial table would fail in the middle of a word instead of at the door.</p></div>
+<div class="member" id="vocab-ranks-token"><pre class="sig"><code>pub fn Ranks::token(Self, Int32) -&gt; Bytes?</code></pre><p>The token of a rank.</p></div>
+</article>
+</section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>moontoken</span>
+  <span>Apache-2.0</span>
+  <a href="https://github.com/moonbitstack/moontoken">github.com/moonbitstack/moontoken</a>
+  <a href="https://mooncakes.io/docs/moonbitstack/moontoken">mooncakes.io</a>
+</footer>
+
+<script type="module" src="assets/theme.js"></script>
+</body>
+</html>

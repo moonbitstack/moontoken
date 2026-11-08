@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moontoken — the proving table</title>
+<meta name="description" content="Cut text into tokens with moontoken, read the ids, and decode them back.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+try{var n=performance.getEntriesByType("navigation")[0];if(n&&n.type==="reload")sessionStorage.removeItem("moontoken.press")}catch(e){}
+try{var p=sessionStorage.getItem("moontoken.press")}catch(e){p=null}
+var q=new URLSearchParams(location.search).get("press");
+if(q==="day"||q==="night")p=q;
+if(!p)p=matchMedia("(prefers-color-scheme: dark)").matches?"night":"day";
+document.documentElement.dataset.theme=p;
+</script>
+<script type="module" src="assets/scroll.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <a class="mark" href="index.html">moon<em>token</em></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="guide.html">Guide</a>
+    <a href="api.html">API</a>
+    <a href="play.html" aria-current="page">Table</a>
+  </nav>
+  <div class="tools">
+    <button id="theme" type="button" aria-pressed="false">
+      <span class="lamp" aria-hidden="true"></span><span class="name">Day</span>
+    </button>
+    <a class="icon-link" href="https://github.com/moonbitstack/moontoken" aria-label="moontoken on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main class="work">
+  <h1>The proving table</h1>
+  <p class="standfirst">Everything on this page runs the library, compiled to JavaScript, in your browser — the same code that runs under <code>moon run</code>. The vocabulary is a specimen of <span id="spec-size">—</span> entries written for the demonstration; the splitting is the published <code>cl100k_base</code> rule.</p>
+
+  <div class="mode-row">
+    <span data-engine-note>loading the engine…</span>
+  </div>
+
+  <label class="bench-in flush">
+    <textarea id="manuscript" rows="3" spellcheck="false" aria-label="Text to encode">Tokenizers cut text into pieces, and the pieces are what a model pays for.</textarea>
+    <span class="hint">Try a script the table has never merged, or a byte that is not text on its own.</span>
+  </label>
+
+  <div class="samples">
+    <button type="button" data-sample="the world and the thing">a merged line</button>
+    <button type="button" data-sample="the thing is in the world">the same merges again</button>
+    <button type="button" data-sample="分词器把文本切成小块。">Chinese, unmerged</button>
+    <button type="button" data-sample="naïve café — 42.5%">accents and punctuation</button>
+    <button type="button" data-sample="🜁 emoji live above the basic plane">an astral plane</button>
+    <button type="button" data-sample="">empty</button>
+  </div>
+
+  <section class="split">
+    <div class="pane">
+      <h4>What the table did</h4>
+      <span class="big" id="count">—</span>
+      <span class="sub" id="count-sub">tokens</span>
+      <p class="sub" id="mix">—</p>
+      <h4 class="gap">Ids</h4>
+      <p class="id-strip" id="ids">—</p>
+    </div>
+    <div class="pane">
+      <h4>Pulled proof</h4>
+      <p class="id-strip lead" id="decoded">—</p>
+      <h4 class="gap">Cost</h4>
+      <p class="sub" id="cost">—</p>
+      <h4 class="gap">Selected</h4>
+      <p class="sub" id="peek">click a slug to read its bytes</p>
+    </div>
+  </section>
+
+  <h2 class="sub-head">The stick</h2>
+  <div class="stick flush" id="stick"></div>
+
+  <h2 class="sub-head">Every token, in order</h2>
+  <p class="caption spaced">id · what it stands for · its bytes</p>
+  <div class="long-list" id="list"></div>
+
+  <div class="pager">
+    <a href="index.html">← The home page</a>
+    <a href="guide.html">The guide →</a>
+  </div>
+</main>
+
+<footer>
+  <span>moontoken</span>
+  <span>Apache-2.0</span>
+  <a href="https://github.com/moonbitstack/moontoken">github.com/moonbitstack/moontoken</a>
+  <a href="https://mooncakes.io/docs/moonbitstack/moontoken">mooncakes.io</a>
+</footer>
+
+<script type="module" src="assets/play.js"></script>
+<script type="module" src="assets/theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moontoken — text into tokens, and back</title>
+<meta name="description" content="Tokenizers for MoonBit: byte-level BPE and SentencePiece, over a vocabulary you supply.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+try{var n=performance.getEntriesByType("navigation")[0];if(n&&n.type==="reload")sessionStorage.removeItem("moontoken.press")}catch(e){}
+try{var p=sessionStorage.getItem("moontoken.press")}catch(e){p=null}
+var q=new URLSearchParams(location.search).get("press");
+if(q==="day"||q==="night")p=q;
+if(!p)p=matchMedia("(prefers-color-scheme: dark)").matches?"night":"day";
+document.documentElement.dataset.theme=p;
+</script>
+<script type="module" src="assets/scroll.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <a class="mark" href="index.html">moon<em>token</em></a>
+  <nav>
+    <a href="index.html" aria-current="page">Home</a>
+    <a href="guide.html">Guide</a>
+    <a href="api.html">API</a>
+    <a href="play.html">Table</a>
+  </nav>
+  <div class="tools">
+    <button id="theme" type="button" aria-pressed="false">
+      <span class="lamp" aria-hidden="true"></span><span class="name">Day</span>
+    </button>
+    <a class="icon-link" href="https://github.com/moonbitstack/moontoken" aria-label="moontoken on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="num">i</div>
+    <div class="body">
+      <div class="kicker">
+        <b>Tokenizers for MoonBit</b>
+        <span>byte-level BPE</span>
+        <span>sentencepiece</span>
+        <span>tokenizer.json</span>
+      </div>
+      <h1>Text into <em>tokens</em>,<br>and back.</h1>
+      <p class="lede">A tokenizer is three things: a way to cut text into the words a model was trained on, a vocabulary that says what each of those words costs, and a rule for the tokens a model reserves. This library implements all three for the two families in use today, and takes the vocabulary as an argument.</p>
+      <div class="run">
+        <div class="install"><span>$</span>moon add moonbitstack/moontoken</div>
+        <a class="button" href="guide.html">Read the guide</a>
+        <a class="button quiet" href="play.html">The proving table</a>
+      </div>
+
+      <div class="bench">
+        <div class="bench-head">
+          <span class="label">Composing stick</span>
+          <span class="note" data-engine-note>loading the engine…</span>
+        </div>
+        <label class="bench-in">
+          <textarea id="manuscript" rows="2" spellcheck="false" aria-label="Text to encode">the world and the thing</textarea>
+          <span class="hint">type anything — the page cuts it, sets it in slugs, and pulls a proof back</span>
+        </label>
+        <div class="stick" id="stick" aria-live="polite"></div>
+        <div class="bench-foot">
+          <dl class="readout">
+            <div><dt>tokens</dt><dd id="count">—</dd></div>
+            <div><dt>bytes</dt><dd id="bytes">—</dd></div>
+            <div><dt>bytes / token</dt><dd id="ratio">—</dd></div>
+          </dl>
+          <div class="peel" id="peel">
+            <span class="who">every id, from the table</span>
+            <span class="what">—</span>
+          </div>
+          <div class="proof">
+            <span class="tag">decoded</span>
+            <span id="decoded">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="figures">
+        <div><span>vocabulary formats</span><b>3</b></div>
+        <div><span>published encodings</span><b>4</b></div>
+        <div><span>merges above</span><b id="merges">—</b></div>
+        <div><span>files opened by the library</span><b>0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="num">01</div>
+    <div class="body">
+      <h2>The table is the argument</h2>
+      <p>Where a table comes from is the format's business, not the tokenizer's: a <code>GGUF</code> file, a download from a model hub, a string in a repository. This library parses the formats and takes the bytes; fetching them is the caller's. The table below is the one the stick above runs on — <b id="case-count">—</b> entries, every byte value included, because a table with a gap is not total over text.</p>
+      <div class="case-bar">
+        <span>the alphabet</span>
+        <span>every one of the 256 byte values, as the table holds them</span>
+        <span>click a compartment to read its bytes</span>
+      </div>
+      <div class="type-case bytes" id="case" aria-label="The 256 byte entries of the specimen table"></div>
+      <div class="case-bar">
+        <span>the merges</span>
+        <span class="legend">
+          <span><i class="k-m0"></i><i class="k-m1"></i><i class="k-m2"></i><i class="k-m3"></i>one ink each</span>
+        </span>
+        <span id="merge-count"></span>
+      </div>
+      <div class="type-case merges" id="merges" aria-label="The merged entries of the specimen table"></div>
+      <p>A merge is what makes a word cost less than its letters. The merges in this table were written by hand to show the mechanism; a published encoding has a hundred thousand, trained on a corpus. The shape of the thing does not change: an id, the bytes it stands for, and the order in which pairs were fused.</p>
+      <p>Text this table has never merged falls back to one token per byte. That is not a failure of the reader — it is the reason a vocabulary is worth training: an unfamiliar script costs three tokens a character, and the table above says so plainly.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="num">02</div>
+    <div class="body">
+      <h2>Three ways to bring one</h2>
+      <div class="families">
+        <div class="family">
+          <h3>Byte-level BPE</h3>
+          <div class="tagline">a rank table and a split</div>
+          <p>The encodings that ship with published models, each with its own pre-tokenizer. The split is a scanner, not a regular expression run through a host library, so it behaves the same on every backend.</p>
+          <ul>
+            <li><code>Tokenizer::cl100k</code></li>
+            <li><code>Tokenizer::o200k</code></li>
+            <li><code>Tokenizer::r50k</code></li>
+            <li><code>Tokenizer::p50k_edit</code></li>
+            <li><code>Tokenizer::byte_bpe</code></li>
+          </ul>
+        </div>
+        <div class="family">
+          <h3>SentencePiece</h3>
+          <div class="tagline">a model file, read whole</div>
+          <p>A <code>.model</code> file carries the trie, the normalisation rules, the byte fallback and the symbols its trainer reserved. Both trainer types are read, and nothing is assumed that the file does not say.</p>
+          <ul>
+            <li><code>Tokenizer::of_proto</code></li>
+            <li>unigram and BPE</li>
+            <li>user-defined symbols</li>
+          </ul>
+        </div>
+        <div class="family">
+          <h3>tokenizer.json</h3>
+          <div class="tagline">a vocabulary with its pipeline</div>
+          <p>The JSON a model hub ships: vocabulary, merges, normaliser, pre-tokenizer and added tokens in one document. What the document asks for and this reader does not implement is refused by name, never approximated.</p>
+          <ul>
+            <li><code>Tokenizer::parse</code></li>
+            <li>BPE and unigram</li>
+            <li><code>Tokenizer::of</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="num">03</div>
+    <div class="body">
+      <h2>Reserved tokens are the caller's decision</h2>
+      <p>A model reserves a handful of spellings that stand for structure rather than text. Whether text that happens to contain <code>&lt;|endoftext|&gt;</code> is taken as the token, taken as text, or refused belongs to the caller, never to the library.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Policy</th><th>What happens to a reserved spelling</th></tr></thead>
+          <tbody>
+            <tr><td>Refuse</td><td>The text is refused, with the offset of the spelling.</td></tr>
+            <tr><td>Allow</td><td>Every reserved spelling is taken as its token.</td></tr>
+            <tr><td>Ignore</td><td>Reserved spellings are encoded as ordinary text.</td></tr>
+            <tr><td>Only(names)</td><td>Just the spellings named are taken as tokens; the rest are text.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:1rem">When one spelling is a prefix of another the longest wins, at every position. A tokenizer cannot define it any other way, and the test that pins the difference is named for it.</p>
+      <pre class="code">fn only_reserved(tokenizer : @moontoken.Tokenizer, text : String) -&gt; Array[Int32] raise {
+  tokenizer.encode(text, special=@special.Only(["&lt;|endoftext|&gt;"]))
+}</pre>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="num">04</div>
+    <div class="body">
+      <h2>What is in the box</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Package</th><th>What it is</th></tr></thead>
+          <tbody>
+            <tr><td>moontoken</td><td>The tokenizer: encode, encode_ordinary, decode, count, and the ways to build one.</td></tr>
+            <tr><td>split</td><td>The pre-tokenizers of the published encodings, written as scanners.</td></tr>
+            <tr><td>vocab</td><td>A rank table, from the base64 file a model publishes or from pairs.</td></tr>
+            <tr><td>bpe</td><td>Byte-pair merging: the byte-level model and the word-level one a tokenizer.json names.</td></tr>
+            <tr><td>piece</td><td>The SentencePiece model file: both trainer types, and the trie it compiles.</td></tr>
+            <tr><td>normalizer</td><td>The rule table a model file carries, and the operations a tokenizer.json lists.</td></tr>
+            <tr><td>special</td><td>The tokens a model reserves, and what may happen to them.</td></tr>
+            <tr><td>refused</td><td>The one error shape the whole library raises.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="next">
+        <a href="guide.html"><b>The guide</b><span>From a first table to a model file, a tokenizer.json and the policies in between.</span></a>
+        <a href="api.html"><b>The reference</b><span>Every public type, function and value, with its signature and what it does.</span></a>
+        <a href="play.html"><b>The proving table</b><span>Cut text, read the ids, decode them, and try a model's own vocabulary rules.</span></a>
+        <a href="https://github.com/moonbitstack/moontoken"><b>The repository</b><span>Sources, examples, and the references this library is measured against.</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>moontoken</span>
+  <span>Apache-2.0</span>
+  <a href="https://github.com/moonbitstack/moontoken">github.com/moonbitstack/moontoken</a>
+  <a href="https://mooncakes.io/docs/moonbitstack/moontoken">mooncakes.io</a>
+</footer>
+
+<script type="module" src="assets/home.js"></script>
+<script type="module" src="assets/theme.js"></script>
+</body>
+</html>
