@@ -408,13 +408,23 @@ main {
 }
 
 .section h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
   font-family: var(--display);
   font-weight: var(--display-weight);
   font-size: clamp(1.6rem, 2.6vw, 2.3rem);
   line-height: 1.16;
   letter-spacing: var(--display-tracking);
   text-transform: var(--display-transform);
-  max-width: 34ch;
+}
+
+.section h2::after {
+  content: "";
+  flex: 1 1 3rem;
+  height: 1px;
+  background: var(--rule);
+  transform: translateY(-0.18em);
 }
 
 .section h2 + p {
@@ -541,6 +551,15 @@ td code {
   font-size: 1.1rem;
   line-height: 1.62;
   color: var(--ink-2);
+}
+
+@media (width >= 1080px) {
+  .hero .lede {
+    max-width: none;
+    columns: 2;
+    column-gap: 2.6rem;
+    column-rule: 1px solid var(--rule-soft);
+  }
 }
 
 /* the order a job travels with: a docket, not a row of buttons */
@@ -1260,7 +1279,8 @@ pre.code .n {
 }
 
 pre.out {
-  margin-top: 0.6rem;
+  position: relative;
+  margin-top: 0.7rem;
   padding: 0.85rem 1.1rem;
   overflow-x: auto;
   background: color-mix(in srgb, var(--ink) 4%, transparent);
@@ -1274,6 +1294,22 @@ pre.out {
 pre.out b {
   color: var(--ink);
   font-weight: 500;
+}
+
+pre.out::before {
+  content: "output";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.1rem 0.5rem 0.15rem;
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--spot);
+  background: var(--bg);
+  border-left: 1px dashed var(--rule);
+  border-bottom: 1px dashed var(--rule);
 }
 
 .caption {
@@ -1360,6 +1396,26 @@ footer a {
   line-height: 1.35;
 }
 
+.guide .toc {
+  counter-reset: step;
+}
+
+.guide .toc a {
+  counter-increment: step;
+}
+
+.guide .toc a::before {
+  content: counter(step, decimal-leading-zero);
+  display: inline-block;
+  width: 1.7rem;
+  color: var(--spot);
+  font-variant-numeric: tabular-nums;
+}
+
+.api .toc a::before {
+  content: none;
+}
+
 .toc .h {
   font-size: 0.62rem;
   letter-spacing: 0.14em;
@@ -1371,7 +1427,8 @@ footer a {
 
 .toc a {
   display: block;
-  padding: 0.4rem 0 0.4rem 0.7rem;
+  padding: 0.42rem 0 0.42rem 0.7rem;
+  font-size: 0.73rem;
   color: var(--ink-2);
   text-decoration: none;
   border-left: 1px solid var(--rule);
@@ -1408,9 +1465,11 @@ footer a {
 }
 
 .doc h2 {
-  margin: 3.2rem 0 0;
-  padding-top: 1.6rem;
-  border-top: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 2.6rem auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 1rem;
+  margin: 3.8rem 0 0;
   font-family: var(--display);
   font-weight: var(--display-weight);
   font-size: clamp(1.5rem, 2.4vw, 2rem);
@@ -1419,13 +1478,24 @@ footer a {
   text-transform: var(--display-transform);
 }
 
+.doc h2::after {
+  content: "";
+  height: 1px;
+  background: var(--rule);
+  transform: translateY(-0.2em);
+}
+
+.doc h2 .title {
+  min-width: 0;
+}
+
 .doc h2 .step {
-  display: block;
-  margin-bottom: 0.35rem;
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
   color: var(--spot);
+  font-variant-numeric: tabular-nums;
 }
 
 .doc h3 {
@@ -1730,7 +1800,10 @@ footer a {
 }
 
 .ref > section > h2 {
-  margin: 2.6rem 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  margin: 2.8rem 0 0;
   padding-top: 1.4rem;
   border-top: 1px solid var(--rule);
   font-family: var(--display);
@@ -1739,6 +1812,14 @@ footer a {
   letter-spacing: -0.01em;
   text-transform: var(--display-transform);
   overflow-wrap: anywhere;
+}
+
+.ref > section > h2::after {
+  content: "";
+  flex: 1 1 3rem;
+  height: 1px;
+  background: var(--rule);
+  transform: translateY(-0.2em);
 }
 
 .ref h2:first-of-type {
@@ -1778,8 +1859,12 @@ footer a {
 }
 
 .ref pre.sig {
-  margin: 0.5rem 0 0;
-  padding: 0.7rem 0.9rem;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.55rem 0 0;
+  padding: 0.55rem 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   overflow-x: auto;
   font-size: 0.76rem;
   line-height: 1.55;
@@ -1787,7 +1872,6 @@ footer a {
   background: color-mix(in srgb, var(--ink) 4%, transparent);
   border: 1px solid var(--rule-soft);
   border-radius: 2px;
-  white-space: pre;
 }
 
 .ref p {
@@ -1974,8 +2058,18 @@ pre.out:hover::-webkit-scrollbar-thumb,
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* one column, so both the folio and the text take the first track */
+  .hero > .num,
+  .hero .body,
+  .section > .num,
+  .section > .body {
+    grid-column: 1;
+    max-width: none;
+  }
+
   .hero > .num,
   .section > .num {
+    width: 2.6rem;
     padding-top: 0;
     margin-bottom: 0.5rem;
   }
@@ -2012,6 +2106,13 @@ pre.out:hover::-webkit-scrollbar-thumb,
     font-size: 0.54rem;
   }
 
+  /* on a narrow sheet the shoulder rule only steals width from the title */
+  .section h2::after,
+  .doc h2::after,
+  .ref > section > h2::after {
+    display: none;
+  }
+
   .guide,
   .api {
     grid-template-columns: minmax(0, 1fr);
@@ -2020,6 +2121,22 @@ pre.out:hover::-webkit-scrollbar-thumb,
   .toc {
     position: static;
     margin-bottom: 1.6rem;
+  }
+
+  /* the reference's index is long: two columns, groups never split */
+  .api .toc {
+    columns: 2;
+    column-gap: 1.4rem;
+  }
+
+  .api .toc .group {
+    break-inside: avoid;
+    margin-bottom: 0.9rem;
+  }
+
+  .api .toc .group a {
+    padding: 0.26rem 0 0.26rem 0.55rem;
+    font-size: 0.7rem;
   }
 
   .toc a {

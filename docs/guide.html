@@ -60,11 +60,11 @@ document.documentElement.dataset.theme=p;
       <h1>From a table to a model file</h1>
       <p class="standfirst">A tokenizer is a vocabulary plus the rules for cutting text and for the tokens a model reserves. This guide builds one from nothing, then reads the three formats a real model ships: a rank table, a SentencePiece <code>.model</code>, and a <code>tokenizer.json</code>. Every block below compiles, and every output was produced by running it.</p>
 
-      <h2 id="install"><span class="step">01</span>Install</h2>
+      <h2 id="install"><span class="step">01</span><span class="title">Install</span></h2>
       <pre class="code">moon add moonbitstack/moontoken</pre>
       <p>Nothing else is needed, and no dependency opens a file. The library parses formats; fetching a vocabulary, caching it or unpacking it from a model archive stays with the caller.</p>
 
-      <h2 id="table"><span class="step">02</span>A table of your own</h2>
+      <h2 id="table"><span class="step">02</span><span class="title">A table of your own</span></h2>
       <p>A byte-level table has to carry every byte value: that is what makes the encoding total over text, and <code>Ranks::from_pairs</code> is where you say so. On top of the 256 bytes go merges — each a byte string and the rank it occupies. The smallest useful table is 256 entries and no merges; this one has seven, which is enough to see the mechanism.</p>
       <pre class="code">fn ranks() -> @vocab.Ranks raise {
   let pairs : Array[(Bytes, Int32)] = []
@@ -103,7 +103,7 @@ fn ids_text(ids : Array[Int32]) -> String {
       <pre class="out">258 262 261 32 258 32 256 260</pre>
       <p>Seven ids for twenty-three bytes. <code>the</code> is one entry, <code> world</code> is one, <code> and</code> is one; the space before <code>the</code> is not merged, so the word and the space are separate. That asymmetry is not a bug in the split — it is what the table was given.</p>
 
-      <h2 id="cost"><span class="step">03</span>What a token costs</h2>
+      <h2 id="cost"><span class="step">03</span><span class="title">What a token costs</span></h2>
       <p>Counting without encoding allocates nothing you keep: <code>count</code> walks the same split and the same merges, and returns an <code>Int32</code>.</p>
       <pre class="code">fn counts() -> (Int32, Int32) raise {
   let tokenizer = tokenizer()
@@ -112,7 +112,7 @@ fn ids_text(ids : Array[Int32]) -> String {
       <pre class="out">8  263</pre>
       <p>The first number is the cost of that sentence; the second is the size of the table, which is what <code>length</code> reports. Both are cheap, and neither touches the network.</p>
 
-      <h2 id="bytes"><span class="step">04</span>Bytes, and the way back</h2>
+      <h2 id="bytes"><span class="step">04</span><span class="title">Bytes, and the way back</span></h2>
       <p>A byte-level vocabulary can hold entries that are not valid UTF-8 on their own — a stray continuation byte, or the first two bytes of a three-byte character. Decoding them as text would drop them; <code>decode_bytes</code> keeps them, and <code>token_bytes</code> says what any single id stands for.</p>
       <pre class="code">fn round_trip() -> String raise {
   let tokenizer = tokenizer()
@@ -128,14 +128,14 @@ fn ids_text(ids : Array[Int32]) -> String {
       <pre class="out">the world and the thing · 23 bytes · id 258 is 3 bytes</pre>
       <p>Text out is text in, byte for byte, including input that was never text to begin with.</p>
 
-      <h2 id="published"><span class="step">05</span>A published encoding</h2>
+      <h2 id="published"><span class="step">05</span><span class="title">A published encoding</span></h2>
       <p>OpenAI publishes rank tables as base64, one <code>token rank</code> per line. <code>Ranks::from_tiktoken</code> reads that text; where the text came from is the caller's business.</p>
       <pre class="code">fn from_published(table : String) -> @moontoken.Tokenizer raise {
   @moontoken.Tokenizer::cl100k(ranks=@vocab.Ranks::from_tiktoken(table))
 }</pre>
       <p>The four published encodings each have a constructor, because each has its own split: <code>Tokenizer::cl100k</code>, <code>::o200k</code>, <code>::r50k</code> and <code>::p50k_edit</code>. When the split is your own, build with <code>Tokenizer::byte_bpe(ranks~, split~, ...)</code> and say which rule to use.</p>
 
-      <h2 id="reserved"><span class="step">06</span>Reserved tokens</h2>
+      <h2 id="reserved"><span class="step">06</span><span class="title">Reserved tokens</span></h2>
       <p>A model reserves spellings such as <code>&lt;|endoftext|&gt;</code> that stand for structure. What happens to text that contains one is a policy, and every policy is explicit:</p>
       <div class="table-wrap">
         <table>
@@ -158,21 +158,21 @@ fn ids_text(ids : Array[Int32]) -> String {
       <pre class="out">1  13</pre>
       <p>Allowed, the spelling is one token. Ignored, it is the thirteen bytes it is written with. When one reserved spelling is a prefix of another, the longest wins at every position — the library does not take whichever a hash map yields first.</p>
 
-      <h2 id="piece"><span class="step">07</span>A SentencePiece model</h2>
+      <h2 id="piece"><span class="step">07</span><span class="title">A SentencePiece model</span></h2>
       <p>A <code>.model</code> file is a protobuf that carries everything: the pieces with their scores, the normalisation rules, the trie, the byte fallback, and the symbols the trainer reserved. <code>Tokenizer::of_proto</code> reads it whole; nothing is assumed that the file does not say.</p>
       <pre class="code">fn from_model(bytes : Bytes) -> @moontoken.Tokenizer raise {
   @moontoken.Tokenizer::of_proto(bytes)
 }</pre>
       <p>Both trainer types are read — unigram, which this library segments by score, and BPE, which merges by rank. A user-defined symbol is taken as one token, and a character the model never saw falls back to its bytes rather than to an unknown id, when the model says so.</p>
 
-      <h2 id="json"><span class="step">08</span>A tokenizer.json</h2>
+      <h2 id="json"><span class="step">08</span><span class="title">A tokenizer.json</span></h2>
       <p>The JSON a model hub ships holds the vocabulary, the merges, the normaliser, the pre-tokenizer and the added tokens in one document. <code>Tokenizer::parse</code> reads it; <code>Tokenizer::of</code> takes the same thing as a <code>Json</code> value you already parsed.</p>
       <pre class="code">fn from_json(document : String) -> @moontoken.Tokenizer raise {
   @moontoken.Tokenizer::parse(document)
 }</pre>
       <p>Anything the document asks for that this reader does not implement is refused by name. That is the point of the refusal: an approximation would tokenize quietly and wrongly, and the numbers it produced would look fine.</p>
 
-      <h2 id="refusals"><span class="step">09</span>When it refuses</h2>
+      <h2 id="refusals"><span class="step">09</span><span class="title">When it refuses</span></h2>
       <p>One error type covers the whole library, and it says where. It lives in <code>moonbitstack/moontoken/refused</code> and is re-exported as <code>@moontoken.Refused</code>; the variants are worth matching on rather than printing, because each carries the piece that went wrong.</p>
       <pre class="code">fn explain(error : @refused.Refused) -> String {
   match error {
@@ -185,7 +185,7 @@ fn ids_text(ids : Array[Int32]) -> String {
 }</pre>
       <p><code>Missing</code> is the one to expect in production: a stream of ids from a model built on a different table has ids this table does not have, and the number in the error is the first one.</p>
 
-      <h2 id="model"><span class="step">10</span>A model of your own</h2>
+      <h2 id="model"><span class="step">10</span><span class="title">A model of your own</span></h2>
       <p>The <code>Model</code> trait is open: a segmentation this library does not ship can be wrapped in the same tokenizer, keeping the reserved tokens, the policy and the error shape. Five methods are the whole contract.</p>
       <pre class="code">pub(open) trait Model {
   fn encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused
