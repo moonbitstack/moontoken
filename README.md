@@ -1,5 +1,12 @@
 # moontoken
 
+<p>
+  <b><a href="https://moonbitstack.github.io/moontoken/">Home</a></b> ·
+  <a href="https://moonbitstack.github.io/moontoken/guide.html">Guide</a> ·
+  <a href="https://moonbitstack.github.io/moontoken/api.html">API</a> ·
+  <a href="https://mooncakes.io/docs/moonbitstack/moontoken">mooncakes</a>
+</p>
+
 Text into tokens and back, over a vocabulary you supply.
 
 A tokenizer is three things: a way to cut text into the words a model was
