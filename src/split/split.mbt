@@ -45,9 +45,12 @@ pub(all) struct Digits {
 }
 
 ///|
+/// Digits cut one at a time, which is what the GPT-2 family does and what
+/// makes a number cost one token per figure.
 pub let digits_individual : Digits = { individual: true, }
 
 ///|
+/// Digits kept in a run, so a number costs one token until it meets a merge.
 pub let digits_run : Digits = { individual: false, }
 
 ///|

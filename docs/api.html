@@ -217,8 +217,8 @@ document.documentElement.dataset.theme=p;
 <h3 id="bpe-functions">Functions</h3>
 <div class="member" id="bpe-byte-alphabet"><pre class="sig"><code>pub fn byte_alphabet() -&gt; Array[Char]</code></pre><p>The alphabet the byte-level version of this model writes its vocabulary in: one character per byte, indexed by the byte.  The bytes that are printable in Latin-1 keep their own character and the rest are laid out over the code points above U+0100, so that a token never holds a control character or half of a character.</p></div>
 <h3 id="bpe-values">Values</h3>
-<div class="member" id="bpe-options"><pre class="sig"><code>pub let options : Options</code></pre></div>
-<div class="member" id="bpe-word-options"><pre class="sig"><code>pub let word_options : WordOptions</code></pre></div>
+<div class="member" id="bpe-options"><pre class="sig"><code>pub let options : Options</code></pre><p>The settings a tokenizer starts with: the cache on, at 16384 words.</p></div>
+<div class="member" id="bpe-word-options"><pre class="sig"><code>pub let word_options : WordOptions</code></pre><p>The settings a word-level model starts with: no unknown id, no byte fallback, and merges taken even when a whole word is in the vocabulary.</p></div>
 </section>
 <section id="normalizer-top"><h2>moontoken/normalizer</h2><p>The rule table a SentencePiece model carries, and the operations a tokenizer.json lists.</p>
 <article id="normalizer-mode"><h3><span class="kind">enum</span> Mode</h3>
@@ -320,7 +320,7 @@ document.documentElement.dataset.theme=p;
 <div class="member" id="piece-piecebpe-decode"><pre class="sig"><code>pub fn PieceBpe::decode(Self, ArrayView[Int32]) -&gt; String raise @refused.Refused</code></pre><p>The text a list of tokens stands for.</p></div>
 <div class="member" id="piece-piecebpe-encode"><pre class="sig"><code>pub fn PieceBpe::encode(Self, StringView) -&gt; Array[Int32] raise @refused.Refused</code></pre><p>The tokens of <code>text</code>.</p></div>
 <div class="member" id="piece-piecebpe-length"><pre class="sig"><code>pub fn PieceBpe::length(Self) -&gt; Int32</code></pre><p>How many pieces the vocabulary has.</p></div>
-<div class="member" id="piece-piecebpe-new"><pre class="sig"><code>pub fn PieceBpe::new(pieces~ : Pieces, normalizer? : @normalizer.Normalizer, user_defined? : Array[Bytes]) -&gt; Self</code></pre></div>
+<div class="member" id="piece-piecebpe-new"><pre class="sig"><code>pub fn PieceBpe::new(pieces~ : Pieces, normalizer? : @normalizer.Normalizer, user_defined? : Array[Bytes]) -&gt; Self</code></pre><p>A BPE SentencePiece model over a vocabulary: <code>pieces</code> in vocabulary order, <code>normalizer</code> for the text before it is cut, and the user-defined symbols that the file reserves.</p></div>
 <div class="member" id="piece-piecebpe-pieces"><pre class="sig"><code>pub fn PieceBpe::pieces(Self) -&gt; Pieces</code></pre><p>The vocabulary.</p></div>
 <div class="member" id="piece-piecebpe-token-bytes"><pre class="sig"><code>pub fn PieceBpe::token_bytes(Self, Int32) -&gt; Bytes?</code></pre><p>The token a piece id stands for.</p></div>
 </article>
@@ -481,8 +481,8 @@ document.documentElement.dataset.theme=p;
 <h3 id="split-functions">Functions</h3>
 <div class="member" id="split-utf8-width-at"><pre class="sig"><code>pub fn utf8_width_at(Bytes, Int32) -&gt; Int32</code></pre><p>The width of the UTF-8 sequence that starts at <code>at</code>, or 0 when the bytes there are not one.</p></div>
 <h3 id="split-values">Values</h3>
-<div class="member" id="split-digits-individual"><pre class="sig"><code>pub let digits_individual : Digits</code></pre></div>
-<div class="member" id="split-digits-run"><pre class="sig"><code>pub let digits_run : Digits</code></pre></div>
+<div class="member" id="split-digits-individual"><pre class="sig"><code>pub let digits_individual : Digits</code></pre><p>Digits cut one at a time, which is what the GPT-2 family does and what makes a number cost one token per figure.</p></div>
+<div class="member" id="split-digits-run"><pre class="sig"><code>pub let digits_run : Digits</code></pre><p>Digits kept in a run, so a number costs one token until it meets a merge.</p></div>
 </section>
 <section id="vocab-top"><h2>moontoken/vocab</h2><p>A rank table: from the base64 text a model publishes, from pairs, or empty and filled by hand.</p>
 <article id="vocab-ranks"><h3><span class="kind">struct</span> Ranks</h3>

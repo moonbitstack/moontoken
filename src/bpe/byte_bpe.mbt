@@ -16,6 +16,7 @@ pub(all) struct Options {
 }
 
 ///|
+/// The settings a tokenizer starts with: the cache on, at 16384 words.
 pub let options : Options = { cache: true, cache_limit: 1 << 14, }
 
 ///|

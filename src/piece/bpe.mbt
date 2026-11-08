@@ -81,6 +81,9 @@ pub struct PieceBpe {
 }
 
 ///|
+/// A BPE SentencePiece model over a vocabulary: `pieces` in vocabulary order,
+/// `normalizer` for the text before it is cut, and the user-defined symbols
+/// that the file reserves.
 pub fn PieceBpe::new(
   pieces~ : Pieces,
   normalizer~ : @normalizer.Normalizer = @normalizer.Normalizer::identity(),

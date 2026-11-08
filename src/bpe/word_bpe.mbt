@@ -61,6 +61,8 @@ pub(all) struct WordOptions {
 }
 
 ///|
+/// The settings a word-level model starts with: no unknown id, no byte
+/// fallback, and merges taken even when a whole word is in the vocabulary.
 pub let word_options : WordOptions = {
   unk_id: -1,
   byte_fallback: false,

@@ -27,6 +27,7 @@ fn ids_of(table : String, text : String) -> Array[Int] raise {
 }
 ```
 
+<!-- nocheck -->
 ```
 text       the world and the thing
 tokens     8
@@ -123,6 +124,7 @@ compared in both directions through `src/examples/03-conformance`.
 Three references rather than one, because none of them covers all three
 formats, and a format read by one implementation only is a format that drifts.
 
+<!-- nocheck -->
 ```bash
 moon build --target native
 pip install tiktoken==0.14.0 sentencepiece==0.2.3 tokenizers==0.23.1
@@ -150,6 +152,7 @@ No test is skipped, so there is nothing to report as not passing.
 
 ## Install
 
+<!-- nocheck -->
 ```bash
 moon add moonbitstack/moontoken
 ```
