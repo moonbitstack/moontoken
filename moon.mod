@@ -1,6 +1,6 @@
 name = "moonbitstack/moontoken"
 
-version = "0.1.1"
+version = "0.1.2"
 
 readme = "README.md"
 
@@ -48,6 +48,6 @@ description = "Tokenizers for MoonBit: byte-level BPE and SentencePiece."
 source = "src"
 
 import {
-  "moonbitstack/moonucd@0.1.3",
+  "moonbitstack/moonucd@0.1.4",
   "moonbitlang/x@0.5.7",
 }
