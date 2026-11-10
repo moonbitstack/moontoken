@@ -91,13 +91,15 @@ export function spaced(hex) {
   return hex.toUpperCase().replace(/(..)(?=.)/g, "$1 ");
 }
 
-export function slug(token) {
+export function slug(token, index = 0) {
   const node = document.createElement("button");
   node.type = "button";
   node.className = "slug " + ink(token.id);
   node.dataset.id = String(token.id);
+  node.dataset.i = String(index);
   node.dataset.hex = token.hex;
   node.dataset.bytes = String(token.bytes);
+  node.style.setProperty("--i", String(Math.min(index, 24)));
   node.setAttribute("aria-pressed", "false");
   const body = document.createElement("span");
   body.className = "face";
@@ -120,4 +122,21 @@ export async function open() {
     table: () => JSON.parse(module.table()),
     spec: () => JSON.parse(module.spec()),
   };
+}
+
+// The last line of a forme is filled out to the measure: a compositor locks
+// furniture in behind the last sort rather than leaving the line open. The
+// block is dropped when it would not fit beside the last sort, because a
+// filler alone on a line of its own is worse than an open line.
+export function lockup(stick) {
+  for (const old of stick.querySelectorAll(".furniture")) old.remove();
+  const sorts = stick.querySelectorAll(".slug");
+  const last = sorts[sorts.length - 1];
+  if (!last) return;
+  const block = document.createElement("span");
+  block.className = "furniture";
+  block.setAttribute("aria-hidden", "true");
+  block.style.setProperty("--i", String(Math.min(sorts.length, 24)));
+  stick.append(block);
+  if (block.offsetTop !== last.offsetTop) block.remove();
 }

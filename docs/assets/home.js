@@ -1,4 +1,4 @@
-import { ink, open, paint, slug, spaced, spoken } from "./engine.js";
+import { ink, lockup, open, paint, slug, spaced, spoken } from "./engine.js";
 
 const note = document.querySelector("[data-engine-note]");
 const manuscript = document.getElementById("manuscript");
@@ -6,9 +6,15 @@ const stick = document.getElementById("stick");
 const caseBox = document.getElementById("case");
 const mergeBox = document.getElementById("merges");
 const peel = document.getElementById("peel");
+const bench = document.getElementById("bench");
+const ids = document.getElementById("ids");
+const pull = document.getElementById("pull");
+
+const PROMPT = ["a sort, pulled out", "click a sort to read its bytes"];
 
 let engine = null;
 let timer = 0;
+let settingTimer = 0;
 
 function say(text, warn = false) {
   if (!note) return;
@@ -16,14 +22,38 @@ function say(text, warn = false) {
   note.classList.toggle("warn", warn);
 }
 
-function compose() {
+// The line is set from the top left, one sort after another, and the proof is
+// pulled across the sheet behind it. Only a fresh line is animated: a reader
+// typing should not watch the whole forme fall apart on every keystroke.
+function settle(count) {
+  if (!stick || !bench) return;
+  clearTimeout(settingTimer);
+  stick.classList.add("setting");
+  bench.classList.add("pulling");
+  settingTimer = setTimeout(() => {
+    stick.classList.remove("setting");
+    bench.classList.remove("pulling");
+  }, 460 + Math.min(count, 24) * 22);
+}
+
+function idTag(token, index) {
+  const tag = document.createElement("span");
+  tag.className = "chip " + ink(token.id);
+  tag.dataset.i = String(index);
+  tag.textContent = String(token.id);
+  return tag;
+}
+
+function compose(animate = false) {
   if (!engine || !manuscript) return;
   const result = engine.compose(manuscript.value);
   if (result.refused) {
     say(result.refused, true);
     return;
   }
-  stick.replaceChildren(...result.tokens.map(slug));
+  stick.replaceChildren(...result.tokens.map((token, i) => slug(token, i)));
+  lockup(stick);
+  ids?.replaceChildren(...result.tokens.map((token, i) => idTag(token, i)));
   document.getElementById("count").textContent = String(result.count);
   document.getElementById("bytes").textContent = String(result.bytes);
   document.getElementById("ratio").textContent =
@@ -31,9 +61,17 @@ function compose() {
   document.getElementById("decoded").textContent = result.decoded;
   say("the library, compiled to JavaScript, running in this page");
   if (peel) {
-    peel.querySelector(".who").textContent = "every id, from the table";
-    peel.querySelector(".what").textContent = result.ids.join(" ") || "nothing to encode";
+    peel.querySelector(".who").textContent = PROMPT[0];
+    peel.querySelector(".what").textContent = PROMPT[1];
   }
+  if (animate) settle(result.count);
+}
+
+// One sort is lit in the strip of ids when its piece is pointed at: the same
+// token, read two ways, on one line.
+function light(index, on) {
+  const tag = ids?.querySelector(`[data-i="${index}"]`);
+  tag?.classList.toggle("hot", on);
 }
 
 function head(text) {
@@ -108,12 +146,25 @@ if (stick && caseBox) {
       piece.dataset.bytes
     } byte${piece.dataset.bytes === "1" ? "" : "s"}`;
   });
+
+  stick.addEventListener("pointerover", (event) => {
+    const piece = event.target.closest(".slug");
+    if (piece) light(Number(piece.dataset.i), true);
+  });
+
+  stick.addEventListener("pointerout", (event) => {
+    const piece = event.target.closest(".slug");
+    if (!piece || piece.contains(event.relatedTarget)) return;
+    light(Number(piece.dataset.i), false);
+  });
 }
+
+pull?.addEventListener("click", () => compose(true));
 
 open()
   .then((ready) => {
     engine = ready;
-    compose();
+    compose(true);
     fillCase(engine.table());
     const spec = engine.spec();
     document.getElementById("merges-count")?.replaceChildren(
@@ -127,4 +178,12 @@ open()
 manuscript?.addEventListener("input", () => {
   clearTimeout(timer);
   timer = setTimeout(compose, 60);
+});
+
+// The measure changes with the window, and so does the tail of the last line.
+addEventListener("resize", () => {
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    if (stick?.querySelector(".slug")) lockup(stick);
+  }, 180);
 });

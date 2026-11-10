@@ -59,16 +59,20 @@ document.documentElement.dataset.theme=p;
         <a class="button quiet" href="play.html">The proving table</a>
       </div>
 
-      <div class="bench">
+      <div class="bench" id="bench">
         <div class="bench-head">
           <span class="label">Composing stick</span>
           <span class="note" data-engine-note>loading the engine…</span>
+          <button class="pull" id="pull" type="button">Pull a proof</button>
         </div>
         <label class="bench-in">
           <textarea id="manuscript" rows="2" spellcheck="false" aria-label="Text to encode">the world and the thing</textarea>
-          <span class="hint">type anything — the page cuts it, sets it in slugs, and pulls a proof back</span>
+          <span class="hint">type anything — the page cuts it, sets the sorts in the chase, and pulls a proof</span>
         </label>
-        <div class="stick" id="stick" aria-live="polite"></div>
+        <div class="chase">
+          <div class="stick" id="stick" aria-live="polite"></div>
+          <span class="quoin" aria-hidden="true"></span>
+        </div>
         <div class="bench-foot">
           <dl class="readout">
             <div><dt>tokens</dt><dd id="count">—</dd></div>
@@ -76,9 +80,10 @@ document.documentElement.dataset.theme=p;
             <div><dt>bytes / token</dt><dd id="ratio">—</dd></div>
           </dl>
           <div class="peel" id="peel">
-            <span class="who">every id, from the table</span>
-            <span class="what">—</span>
+            <span class="who">a sort, pulled out</span>
+            <span class="what">click a sort to read its bytes</span>
           </div>
+          <div class="ids" id="ids" role="group" aria-label="The ids of the line, in order"></div>
           <div class="proof">
             <span class="tag">decoded</span>
             <span id="decoded">—</span>

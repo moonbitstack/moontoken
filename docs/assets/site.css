@@ -680,6 +680,38 @@ td code {
   color: var(--spot);
 }
 
+/* the bar a proof is pulled with: a small control, set like the label it
+   stands beside */
+.pull {
+  margin-left: auto;
+  appearance: none;
+  padding: 0.3rem 0.6rem 0.34rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  cursor: pointer;
+  transition:
+    color 120ms ease-out,
+    background 120ms ease-out,
+    border-color 120ms ease-out,
+    transform 90ms ease-out;
+}
+
+.pull:hover {
+  color: var(--on-spot);
+  background: var(--spot);
+  border-color: var(--spot);
+}
+
+.pull:active {
+  transform: translateY(1px);
+}
+
 .bench-in {
   display: block;
   padding: 1rem 1rem 0.4rem;
@@ -715,56 +747,129 @@ td code {
   color: var(--ink-3);
 }
 
-/* the composing stick: type resting in a tray, numbered underneath */
+/* the chase: the frame a page of type is locked into before the press. A metal
+   rail, four registration studs, and the quoin driven into the corner to hold
+   the sorts. */
+.chase {
+  position: relative;
+  padding: 0.72rem 0.78rem 0.9rem;
+  background-color: var(--bg-2);
+  background-image:
+    radial-gradient(circle, var(--rule-strong) 0 2px, transparent 2.1px),
+    radial-gradient(circle, var(--rule-strong) 0 2px, transparent 2.1px),
+    radial-gradient(circle, var(--rule-strong) 0 2px, transparent 2.1px),
+    radial-gradient(circle, var(--rule-strong) 0 2px, transparent 2.1px);
+  background-size: 7px 7px;
+  background-repeat: no-repeat;
+  background-position:
+    4px 4px,
+    calc(100% - 4px) 4px,
+    4px calc(100% - 4px),
+    calc(100% - 4px) calc(100% - 4px);
+  border: 1px solid var(--rule-strong);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 42%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+/* the quoin: the wedge that is tapped in until the page cannot move */
+.quoin {
+  position: absolute;
+  right: 0.32rem;
+  bottom: 0.36rem;
+  width: 0.55rem;
+  height: 1.45rem;
+  background: repeating-linear-gradient(
+    158deg,
+    var(--rule-strong) 0 1px,
+    transparent 1px 3.5px
+  );
+  clip-path: polygon(62% 0, 100% 0, 100% 100%, 0 100%);
+  opacity: 0.6;
+  transform-origin: 100% 100%;
+}
+
+/* the bed: the composed line rests on it, and the seams between sorts show */
 .stick {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  align-content: flex-end;
-  gap: 0.6rem 0.55rem;
-  min-height: 6.6rem;
-  padding: 1.2rem 1.2rem 1.5rem 1.5rem;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ink) 2%, transparent),
-    color-mix(in srgb, var(--ink) 5%, transparent)
-  );
+  align-content: flex-start;
+  gap: 7px 3px;
+  min-height: 4.6rem;
+  padding: 1rem 0.85rem 1.05rem 1rem;
+  background: color-mix(in srgb, var(--ink) 6%, var(--bg-2));
   box-shadow:
-    inset 11px 0 0 -1px var(--rule-strong),
-    inset 0 -11px 0 -1px var(--rule-strong);
+    inset 0 3px 5px -3px color-mix(in srgb, var(--ink) 45%, transparent),
+    inset 1px 0 0 color-mix(in srgb, var(--ink) 5%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+/* an empty bed says so rather than showing a void */
+.stick:empty::before {
+  content: "an empty forme";
+  margin: auto;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  opacity: 0.7;
 }
 
 .slug {
   --slug: var(--k-raw);
+  --lift: 0px;
+  --i: 0;
+  position: relative;
   display: inline-flex;
   flex-direction: column;
-  align-items: stretch;
-  min-width: 1.9rem;
+  min-width: 1.85rem;
+  padding: 2px 3px 3px 2px;
   border: 0;
   background: none;
-  padding: 0;
   cursor: pointer;
   font-family: var(--mono);
+  transform: translateY(var(--lift));
+  transition:
+    transform 120ms cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-/* a piece of type: paper on the face, the token in its own ink, a coloured shoulder */
+/* the body of the sort: a lip of metal on the right and under the foot, tinted
+   by the ink it is set in, so the piece reads as a block rather than a label */
+.slug::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--slug) 26%, var(--bg-2));
+  box-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 30%, transparent);
+  transition:
+    box-shadow 120ms ease-out;
+}
+
+/* a piece of type: the face stands proud of the body, paper on the face, the
+   token in its own ink */
 .slug .face {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.45rem;
-  padding: 0.46rem 0.52rem;
-  font-size: 0.95rem;
+  min-height: 2.3rem;
+  padding: 0.42rem 0.48rem;
+  font-size: 0.92rem;
   line-height: 1;
   white-space: pre;
   color: var(--slug);
-  background: linear-gradient(180deg, #fffef9 0%, #f5efdf 100%);
-  border-radius: 1px 1px 0 0;
+  background: linear-gradient(180deg, #fffef9 0%, #f4eedd 100%);
+  border-radius: 1px;
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--slug) 40%, transparent),
-    0 1px 1px rgb(23 20 14 / 8%);
+    inset 0 0 0 1px color-mix(in srgb, var(--slug) 45%, transparent),
+    inset 0 1px 0 #fff,
+    inset 0 1px 2px -1px color-mix(in srgb, var(--ink) 40%, transparent),
+    0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent);
   transition:
-    transform 90ms ease-out,
-    box-shadow 90ms ease-out;
+    box-shadow 120ms ease-out;
 }
 
 /* a space inside a token: the blank slug set between words */
@@ -786,33 +891,116 @@ td code {
 
 /* the foot of the piece: the ink band that carries its number */
 .slug .id {
-  padding: 0.16rem 0 0.2rem;
-  font-size: 0.56rem;
+  position: relative;
+  padding: 0.14rem 0 0.18rem;
+  font-size: 0.54rem;
   letter-spacing: 0.06em;
   text-align: center;
   font-variant-numeric: tabular-nums;
   color: color-mix(in srgb, #fffdf5 88%, var(--slug));
   background: var(--slug);
   border-radius: 0 0 1px 1px;
+  border-top: 1px solid color-mix(in srgb, #fff 24%, transparent);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, #000 20%, transparent);
 }
 
-.slug:hover .face {
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--slug) 52%, transparent),
-    inset 0 -3px 0 color-mix(in srgb, var(--slug) 34%, transparent),
-    0 4px 10px -4px rgb(23 20 14 / 34%);
+/* the rest of the last line, filled out to the measure the way a compositor
+   fills it: furniture, not a blank */
+.furniture {
+  flex: 1 1 4rem;
+  min-width: 2rem;
+  align-self: stretch;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--rule-strong) 34%, transparent) 0 1px,
+      transparent 1px 7px
+    );
+  border: 1px solid color-mix(in srgb, var(--rule-strong) 42%, transparent);
+  border-radius: 1px;
+  opacity: 0.75;
+}
+
+/* the piece comes up out of the forme under the pointer, and goes back down
+   when it is pressed */
+.slug:hover {
+  --lift: -2px;
+}
+
+.slug:hover::before {
+  box-shadow: 0 5px 10px -4px color-mix(in srgb, var(--ink) 42%, transparent);
+}
+
+.slug:active {
+  --lift: 1px;
+}
+
+.slug[aria-pressed="true"] {
+  --lift: -3px;
 }
 
 .slug[aria-pressed="true"] .face {
   box-shadow:
     inset 0 0 0 2px var(--spot),
-    inset 0 -3px 0 color-mix(in srgb, var(--slug) 26%, transparent);
+    inset 0 1px 0 #fff;
 }
 
 .slug[aria-pressed="true"] .id {
   background: var(--spot);
   color: var(--on-spot);
+}
+
+/* the same sort, pointed at from elsewhere on the page */
+.slug.hot .face {
+  box-shadow:
+    inset 0 0 0 1px var(--spot),
+    inset 0 1px 0 #fff;
+}
+
+.slug.hot .id {
+  background: var(--spot);
+  color: var(--on-spot);
+}
+
+/* setting the line: each sort arrives from above and settles into the bed */
+@keyframes set {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) rotate(-2deg) scale(0.96);
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+.stick.setting .slug {
+  animation: set 380ms cubic-bezier(0.35, 0, 0.4, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 22ms);
+}
+
+/* the furniture goes in behind the last sort, once the line is set */
+@keyframes lock {
+  from {
+    opacity: 0;
+    transform: scaleX(0.94);
+  }
+
+  to {
+    opacity: 0.75;
+    transform: scaleX(1);
+  }
+}
+
+.stick.setting .furniture {
+  transform-origin: left center;
+  animation: lock 300ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 22ms);
 }
 
 .k-raw {
@@ -867,8 +1055,24 @@ td code {
 }
 
 /* at night the same pieces are frames on a light table, not ink on paper */
+[data-theme="night"] .chase {
+  background-color: var(--panel);
+  border-color: var(--rule);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent),
+    inset 0 -2px 0 #000;
+}
+
 [data-theme="night"] .stick {
   background: color-mix(in srgb, var(--ink) 3%, transparent);
+  box-shadow:
+    inset 0 0 0 1px var(--rule-soft),
+    inset 0 3px 8px -4px #000;
+}
+
+[data-theme="night"] .slug::before {
+  background: color-mix(in srgb, var(--slug) 14%, #090b0d);
+  box-shadow: 0 1px 2px #000;
 }
 
 [data-theme="night"] .slug .face {
@@ -882,13 +1086,15 @@ td code {
 [data-theme="night"] .slug .id {
   background: color-mix(in srgb, var(--slug) 26%, #0c0f11);
   color: var(--slug);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--slug) 22%, transparent);
 }
 
 [data-theme="night"] .quad {
   opacity: 0.55;
 }
 
-[data-theme="night"] .slug:hover .face {
+[data-theme="night"] .slug:hover .face,
+[data-theme="night"] .slug.hot .face {
   box-shadow:
     inset 0 0 0 1px var(--slug),
     0 0 22px -8px var(--slug);
@@ -957,17 +1163,83 @@ td code {
   overflow-wrap: anywhere;
 }
 
+/* the ids of the line, in order: one tag per sort, lit when its sort is
+   pointed at, above or below */
+.ids {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 3px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.ids span {
+  padding: 0.02em 0.3em;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--slug, var(--ink)) 15%, transparent);
+  border-radius: 1px;
+  transition:
+    color 110ms ease-out,
+    background 110ms ease-out;
+}
+
+.ids span.hot {
+  color: var(--on-spot);
+  background: var(--spot);
+}
+
+.id-strip span.hot {
+  color: var(--on-spot);
+  background: var(--spot);
+}
+
 .proof {
   grid-column: 1 / -1;
   display: flex;
   gap: 0.7rem;
   align-items: baseline;
-  padding-top: 0.7rem;
-  border-top: 1px dashed var(--rule);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--rule-soft);
+  background: var(--paper-hi);
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--ink-2);
   overflow-wrap: anywhere;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+/* the decoded line, printed: the impression sits a hair under the paper */
+.proof #decoded {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--ink) 84%, transparent);
+  text-shadow: 0 1px 0 #fff;
+}
+
+/* the sheet comes across the page from the left, the way a proof is pulled */
+@keyframes pull {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.bench.pulling .proof {
+  animation: pull 460ms cubic-bezier(0.3, 0.9, 0.3, 1) both;
+}
+
+[data-theme="night"] .proof {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 5%, transparent);
+}
+
+[data-theme="night"] .proof #decoded {
+  text-shadow: 0 1px 0 #000;
 }
 
 .proof .tag {
@@ -1108,6 +1380,12 @@ td code {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: pre;
+  /* a compartment of the case, not a tile on it */
+  box-shadow: inset 0 3px 4px -3px color-mix(in srgb, var(--ink) 48%, transparent);
+  transition:
+    transform 110ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    background 110ms ease-out,
+    box-shadow 110ms ease-out;
 }
 
 .type-case.merges .cell {
@@ -1115,15 +1393,20 @@ td code {
   font-size: 0.78rem;
   color: var(--slug);
   background: color-mix(in srgb, var(--slug) 13%, var(--panel));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slug) 30%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--slug) 30%, transparent),
+    inset 0 3px 4px -3px color-mix(in srgb, var(--ink) 40%, transparent);
 }
 
+/* a compartment lifts, and takes the ink of the entry under the pointer */
 .cell:hover,
 .cell:focus-visible {
   outline: 1px solid var(--spot);
   outline-offset: -1px;
   z-index: 3;
-  background: color-mix(in srgb, var(--spot) 14%, var(--panel));
+  background: color-mix(in srgb, var(--slug, var(--spot)) 22%, var(--panel));
+  transform: translateY(-1px);
+  box-shadow: 0 3px 7px -4px color-mix(in srgb, var(--ink) 55%, transparent);
 }
 
 .type-case + p,
@@ -1646,11 +1929,6 @@ footer a {
   padding: 1rem 0 0;
 }
 
-.stick.flush {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -1717,18 +1995,50 @@ footer a {
 }
 
 .long-list .row {
+  position: relative;
   display: grid;
   grid-template-columns: 4.2rem minmax(0, 1fr) 5rem;
   gap: 0.8rem;
-  padding: 0.34rem 0.8rem;
+  padding: 0.34rem 0.8rem 0.34rem 0.95rem;
   font-family: var(--mono);
   font-size: 0.72rem;
   border-bottom: 1px solid var(--rule-soft);
   align-items: baseline;
+  transition:
+    background 110ms ease-out,
+    box-shadow 110ms ease-out;
+}
+
+/* each line carries a hairline of its own ink, and the line under the pointer
+   is lifted into a printed band */
+.long-list .row::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--slug, var(--ink)) 32%, transparent);
+  transition: width 110ms ease-out;
+}
+
+.long-list .row:hover,
+.long-list .row.hot {
+  background: color-mix(in srgb, var(--slug, var(--ink)) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slug, var(--ink)) 18%, transparent);
+}
+
+.long-list .row:hover::before,
+.long-list .row.hot::before {
+  width: 4px;
+  background: var(--slug, var(--ink));
 }
 
 .long-list .row:nth-child(2n) {
   background: color-mix(in srgb, var(--ink) 2.5%, transparent);
+}
+
+.long-list .row:nth-child(2n):hover,
+.long-list .row:nth-child(2n).hot {
+  background: color-mix(in srgb, var(--slug, var(--ink)) 9%, transparent);
 }
 
 .long-list .row .i {
@@ -2146,26 +2456,7 @@ pre.out:hover::-webkit-scrollbar-thumb,
     margin-right: 0.9rem;
   }
 
-  .sub-head {
-  margin-top: 3rem;
-  font-family: var(--display);
-  font-weight: var(--display-weight);
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-  line-height: 1.15;
-  letter-spacing: var(--display-tracking);
-  text-transform: var(--display-transform);
-}
-
-.bench-in.flush {
-  padding: 1rem 0 0;
-}
-
-.stick.flush {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.split {
+  .split {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -2191,8 +2482,19 @@ pre.out:hover::-webkit-scrollbar-thumb,
     scroll-behavior: auto;
   }
 
-  .slug .face {
+  .slug,
+  .slug::before,
+  .slug .face,
+  .cell,
+  .long-list .row,
+  .long-list .row::before,
+  .pull {
     transition: none;
+  }
+
+  .stick.setting .slug,
+  .bench.pulling .proof {
+    animation: none;
   }
 }
 

@@ -1,4 +1,4 @@
-import { ink, inkVar, open, paint, slug, spaced, spoken } from "./engine.js";
+import { ink, inkVar, lockup, open, paint, slug, spaced, spoken } from "./engine.js";
 
 const note = document.querySelector("[data-engine-note]");
 const box = document.getElementById("manuscript");
@@ -9,6 +9,7 @@ const ids = document.getElementById("ids");
 
 let engine = null;
 let timer = 0;
+let settingTimer = 0;
 
 function say(text, warn = false) {
   if (!note) return;
@@ -16,9 +17,20 @@ function say(text, warn = false) {
   note.classList.toggle("warn", warn);
 }
 
-function row(token) {
+// A line set on the stick is animated once; typing is not.
+function settle(count) {
+  if (!stick) return;
+  clearTimeout(settingTimer);
+  stick.classList.add("setting");
+  settingTimer = setTimeout(() => {
+    stick.classList.remove("setting");
+  }, 460 + Math.min(count, 24) * 22);
+}
+
+function row(token, index) {
   const line = document.createElement("div");
   line.className = "row " + ink(token.id);
+  line.dataset.i = String(index);
   const id = document.createElement("span");
   id.className = "i";
   id.textContent = String(token.id);
@@ -37,7 +49,31 @@ function row(token) {
   return line;
 }
 
-function compose() {
+// One token, three views of it: the sort on the stick, the tag in the strip of
+// ids, and the line in the list. Pointing at any of them lights the other two.
+function light(index, on) {
+  for (const node of document.querySelectorAll(`[data-i="${index}"]`)) {
+    if (node.classList.contains("slug")) continue;
+    node.classList.toggle("hot", on);
+  }
+  stick?.querySelectorAll(`.slug[data-i="${index}"]`).forEach((piece) => {
+    piece.classList.toggle("hot", on);
+  });
+}
+
+function watch(container) {
+  container?.addEventListener("pointerover", (event) => {
+    const node = event.target.closest("[data-i]");
+    if (node) light(Number(node.dataset.i), true);
+  });
+  container?.addEventListener("pointerout", (event) => {
+    const node = event.target.closest("[data-i]");
+    if (!node || node.contains(event.relatedTarget)) return;
+    light(Number(node.dataset.i), false);
+  });
+}
+
+function compose(animate = false) {
   if (!engine || !box) return;
   const result = engine.compose(box.value);
   if (result.refused) {
@@ -45,8 +81,9 @@ function compose() {
     return;
   }
   say("the library, compiled to JavaScript, in this page");
-  stick.replaceChildren(...result.tokens.map(slug));
-  list.replaceChildren(...result.tokens.map(row));
+  stick.replaceChildren(...result.tokens.map((token, i) => slug(token, i)));
+  lockup(stick);
+  list.replaceChildren(...result.tokens.map((token, i) => row(token, i)));
   document.getElementById("count").textContent = String(result.count);
   document.getElementById("count-sub").textContent =
     result.count === 1 ? "token" : "tokens";
@@ -65,14 +102,16 @@ function compose() {
       ? "—"
       : `${result.bytes} bytes · ${(result.bytes / result.count).toFixed(2)} bytes per token`;
   ids.replaceChildren(
-    ...result.ids.map((id) => {
+    ...result.ids.map((id, index) => {
       const one = document.createElement("span");
       one.textContent = String(id);
+      one.dataset.i = String(index);
       one.style.setProperty("--slug", `var(${inkVar(id)})`);
       return one;
     }),
   );
   if (peek) peek.textContent = "click a slug to read its bytes";
+  if (animate) settle(result.count);
 }
 
 stick?.addEventListener("click", (event) => {
@@ -89,11 +128,15 @@ stick?.addEventListener("click", (event) => {
   )}`;
 });
 
+watch(stick);
+watch(list);
+watch(ids);
+
 document.querySelectorAll("[data-sample]").forEach((button) => {
   button.addEventListener("click", () => {
     if (!box) return;
     box.value = button.dataset.sample;
-    compose();
+    compose(true);
   });
 });
 
@@ -102,7 +145,7 @@ open()
     engine = ready;
     const spec = engine.spec();
     document.getElementById("spec-size").textContent = String(spec.vocabulary);
-    compose();
+    compose(true);
   })
   .catch(() => {
     say("the engine is not built yet: moon build --target js src/examples/browser", true);
@@ -111,4 +154,12 @@ open()
 box?.addEventListener("input", () => {
   clearTimeout(timer);
   timer = setTimeout(compose, 60);
+});
+
+// The measure changes with the window, and so does the tail of the last line.
+addEventListener("resize", () => {
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    if (stick?.querySelector(".slug")) lockup(stick);
+  }, 180);
 });
