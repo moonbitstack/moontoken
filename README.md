@@ -42,6 +42,32 @@ Encoding and decoding round-trip: text that goes in comes back out, including
 the bytes that are not valid text on their own, because a byte-level encoding
 spells those out rather than dropping them.
 
+## The interface
+
+One type carries the vocabulary and the rules; everything else is an argument
+to it.
+
+| Call | What it does |
+|:--|:--|
+| `Tokenizer::cl100k(ranks~)` | `cl100k_base`: its split, its reserved tokens, over the table you supply. `::o200k`, `::r50k` and `::p50k_edit` are the same call for the other published encodings. |
+| `Tokenizer::byte_bpe(ranks~, split~)` | A table with a split of your own: any rule in `split`, or a sequence of them. |
+| `Tokenizer::of_proto(bytes)` | A SentencePiece `.model` file, unigram or BPE, read whole. |
+| `Tokenizer::parse(text)` | A `tokenizer.json` document. `::of` takes the same thing as a `Json` you already parsed. |
+| `encode(text)` | The ids. `special=` overrides the policy for this one call. |
+| `encode_ordinary(text)` | The ids of text that holds no reserved token, whatever the policy says. |
+| `count(text)` | How many ids the text costs when every reserved token is recognised — the number to budget a context window with. |
+| `decode(ids)` | The text, with U+FFFD standing in for the byte sequences that are not text. |
+| `decode_bytes(ids)` | The bytes, exact. `reserved=false` drops the reserved tokens instead of spelling them. |
+| `token_bytes(id)` | The bytes one id stands for, reserved ids included. |
+| `length()` | How many entries the vocabulary has, reserved ones not counted. |
+
+Every fallible call raises the one error the library has, `Refused`, which is
+`moonbitstack/moontoken/refused` re-exported. Match on it rather than printing
+it: `Malformed(what, at)` is a format that does not parse, `Absent(name)`
+something a file should have carried and did not, `Unsupported(what)` a format
+this reader does not implement, `Missing(id)` an id the vocabulary does not
+have, and `Disallowed(what, at)` a reserved spelling a policy refused.
+
 ## What it covers
 
 | Package | What it is |
