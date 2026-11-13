@@ -1,6 +1,6 @@
 import {
   "moonbitstack/moontoken/refused",
-  "moonbitlang/core/encoding/base64",
+  "moonbitstack/moonbase/base64",
   "moonbitlang/core/string",
 }
 

@@ -3,21 +3,6 @@
 // draws what the library computed and never re-implements a step of it.
 
 ///|
-/// A token's bytes as lower-case hex. The page uses this instead of the text
-/// because a byte-level vocabulary has entries that are not valid UTF-8 on
-/// their own, and showing them as text would hide that.
-fn hex(bytes : Bytes) -> String {
-  let digits = "0123456789abcdef"
-  let out = StringBuilder()
-  for i = 0; i < bytes.length(); i = i + 1 {
-    let b = bytes[i].to_int() & 0xFF
-    out.write_char(digits[(b >> 4) & 15].unsafe_to_char())
-    out.write_char(digits[b & 15].unsafe_to_char())
-  }
-  out.to_string()
-}
-
-///|
 /// The specimen vocabulary: one entry per byte, then merges in an order that
 /// shows what a merge buys. Small on purpose — the page prints all of it, and
 /// a table a reader can see whole explains the idea better than one they
@@ -89,7 +74,9 @@ fn describe(error : Error) -> String {
 
 ///|
 fn refused(message : String) -> String {
-  @json.Json::object(Map([("refused", @json.Json::string(message))])).stringify()
+  @moonjson.dumps(
+    @json.Json::object(Map([("refused", @json.Json::string(message))])),
+  )
 }
 
 ///|
@@ -114,7 +101,7 @@ pub fn compose(text : String) -> String {
       @json.Json::object(
         Map([
           ("id", @json.Json::number(id.to_double())),
-          ("hex", @json.Json::string(hex(bytes))),
+          ("hex", @json.Json::string(@base16.encode(bytes))),
           ("bytes", @json.Json::number(bytes.length().to_double())),
         ]),
       ),
@@ -129,7 +116,8 @@ pub fn compose(text : String) -> String {
       ("decoded", @json.Json::string(decoded)),
       ("vocabulary", @json.Json::number(tokenizer.length().to_double())),
     ]),
-  ).stringify()
+  )
+  |> @moonjson.dumps
 }
 
 ///|
@@ -147,7 +135,7 @@ pub fn table() -> String {
       @json.Json::object(
         Map([
           ("id", @json.Json::number(id.to_double())),
-          ("hex", @json.Json::string(hex(bytes))),
+          ("hex", @json.Json::string(@base16.encode(bytes))),
         ]),
       ),
     )
@@ -157,7 +145,8 @@ pub fn table() -> String {
       ("entries", @json.Json::array(entries)),
       ("vocabulary", @json.Json::number(ranks.length().to_double())),
     ]),
-  ).stringify()
+  )
+  |> @moonjson.dumps
 }
 
 ///|
@@ -175,5 +164,6 @@ pub fn spec() -> String {
         @json.Json::number(ranks.missing_bytes().length().to_double()),
       ),
     ]),
-  ).stringify()
+  )
+  |> @moonjson.dumps
 }

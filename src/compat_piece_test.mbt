@@ -4,7 +4,7 @@
 ///|
 /// The model file, as the reader takes it.
 fn model_of(text : String) -> @moontoken.Tokenizer raise @refused.Refused {
-  let bytes = @base64.decode(text[:], ignore_whitespace=true) catch {
+  let bytes = @base64.decode(text, whitespace=true) catch {
     _ => raise @refused.Malformed("the model is not base64", 0)
   }
   @moontoken.Tokenizer::of_proto(bytes)

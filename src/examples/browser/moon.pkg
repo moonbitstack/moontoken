@@ -5,6 +5,8 @@ import {
   "moonbitstack/moontoken",
   "moonbitstack/moontoken/vocab",
   "moonbitstack/moontoken/refused",
+  "moonbitstack/moonjson/json" @moonjson,
+  "moonbitstack/moonbase/base16",
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
 }

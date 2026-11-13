@@ -427,8 +427,12 @@ fn stages_has_marker(stages : Array[@normalizer.Stage]) -> Bool {
 
 ///|
 /// A tokenizer from the text of a `tokenizer.json` file.
+///
+/// The text is read as strict RFC 8259: a trailing comma, a comment or a
+/// control character inside a string is refused where it is, rather than being
+/// quietly accepted and changing what the vocabulary ends up holding.
 pub fn Tokenizer::parse(text : StringView) -> Tokenizer raise @refused.Refused {
-  let json = @json.parse(text) catch {
+  let json = @moonjson.loads(text) catch {
     _ => raise @refused.Malformed("the file is not JSON", 0)
   }
   Tokenizer::of(json)

@@ -161,3 +161,29 @@ test "a word with no spelling at all is refused" {
     Err(_) => fail("refused for another reason")
   }
 }
+
+///|
+/// The document itself is read as JSON, not as something close to it: a
+/// trailing comma, a comment, a missing colon or a second document after the
+/// first is refused, so a vocabulary read from a file is the one the file
+/// holds.
+test "text that is not one strict JSON document is refused" {
+  let cases : Array[String] = [
+    "{\"model\": {\"type\": \"BPE\", \"vocab\": {}},}", "{\"model\": {\"type\": \"BPE\", \"vocab\": {}}} // the end",
+    "{\"model\": {\"type\": \"BPE\", \"vocab\": {}}} {}", "{\"model\": {\"type\": \"BPE\", \"vocab\": {\"a\" 0}}}",
+    "{\"model\": {\"type\": \"BPE\", \"vocab\": {}}",
+  ]
+  for file in cases {
+    let outcome = Ok(@moontoken.Tokenizer::parse(file[:])) catch {
+      err => Err(err)
+    }
+    match outcome {
+      Ok(_) => fail("text that is not JSON was read as a tokenizer")
+      Err(@refused.Malformed(what, at)) => {
+        assert_eq(what, "the file is not JSON")
+        assert_eq(at, 0)
+      }
+      Err(_) => fail("refused for another reason")
+    }
+  }
+}
