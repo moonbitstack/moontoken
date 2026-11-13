@@ -133,7 +133,7 @@ fn ids_text(ids : Array[Int32]) -> String {
       <pre class="code">fn from_published(table : String) -> @moontoken.Tokenizer raise {
   @moontoken.Tokenizer::cl100k(ranks=@vocab.Ranks::from_tiktoken(table))
 }</pre>
-      <p>The four published encodings each have a constructor, because each has its own split: <code>Tokenizer::cl100k</code>, <code>::o200k</code>, <code>::r50k</code> and <code>::p50k_edit</code>. When the split is your own, build with <code>Tokenizer::byte_bpe(ranks~, split~, ...)</code> and say which rule to use.</p>
+      <p>The five published encodings each have a constructor, because each has its own split and its own reserved tokens: <code>Tokenizer::cl100k</code>, <code>::o200k</code>, <code>::o200k_harmony</code>, <code>::r50k</code> and <code>::p50k_edit</code>. <code>gpt2</code> and <code>p50k_base</code> are <code>r50k</code>&rsquo;s rules over their own tables, so they read through <code>::r50k</code>. When the split is your own, build with <code>Tokenizer::byte_bpe(ranks~, split~, ...)</code> and say which rule to use.</p>
 
       <h2 id="reserved"><span class="step">06</span><span class="title">Reserved tokens</span></h2>
       <p>A model reserves spellings such as <code>&lt;|endoftext|&gt;</code> that stand for structure. What happens to text that contains one is a policy, and every policy is explicit:</p>

@@ -6,6 +6,8 @@ pub fn cl100k_base() -> Table
 
 pub fn o200k_base() -> Table
 
+pub fn o200k_harmony() -> Table
+
 pub fn p50k_edit() -> Table
 
 pub fn r50k_base() -> Table

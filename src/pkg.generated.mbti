@@ -32,6 +32,7 @@ pub fn Tokenizer::encode_ordinary(Self, StringView) -> Array[Int32] raise @refus
 pub fn Tokenizer::length(Self) -> Int32
 pub fn Tokenizer::new(model~ : &Model, specials? : @special.Table, policy? : @special.Policy) -> Self
 pub fn Tokenizer::o200k(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused
+pub fn Tokenizer::o200k_harmony(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused
 pub fn Tokenizer::of(@json.Json) -> Self raise @refused.Refused
 pub fn Tokenizer::of_proto(Bytes) -> Self raise @refused.Refused
 pub fn Tokenizer::p50k_edit(ranks~ : @vocab.Ranks, policy? : @special.Policy) -> Self raise @refused.Refused

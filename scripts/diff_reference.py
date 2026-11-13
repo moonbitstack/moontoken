@@ -16,9 +16,9 @@ Three references, because no single one covers the formats this library reads:
 - `tokenizers` is where `tokenizer.json` comes from, for both of the model
   types the format names.
 
-Records cross the boundary as text: the bench in `integration/` reads a file of
-records separated by U+001E and prints one line of ids (or hex of the decoded
-text) per record.
+Records cross the boundary as text: the bench in `integration/` reads a file of records
+separated by U+001E and prints one line of ids (or hex of the decoded text)
+per record.
 
     python scripts/diff_reference.py --prepare   # fetch tables, train models
     python scripts/diff_reference.py             # compare
@@ -58,7 +58,9 @@ TIKTOKEN = {
     "cl100k": "cl100k_base",
     "o200k": "o200k_base",
     "r50k": "r50k_base",
+    "p50k": "p50k_base",
     "p50k_edit": "p50k_edit",
+    "harmony": "o200k_harmony",
 }
 
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -77,11 +79,27 @@ ALPHABET = (
 )
 
 
+# The control words a chat format writes and the placeholders the vocabulary
+# reserves beside them. They are here rather than in the vectors because they
+# exercise a table of a thousand reserved spellings, which only the published
+# encoding has.
+CONTROL_WORDS = [
+    "<|start|>assistant<|channel|>final<|message|>Hi<|end|>",
+    "<|start|>user<|message|>a<|endoftext|><|end|>",
+    "<|startoftext|>hello<|endofprompt|>",
+    "<|return|><|constrain|><|call|>",
+    "<|reserved_200004|>",
+    "<|reserved_201087|>",
+    # The id the vocabulary spells twice: named first, placeholder over it.
+    "<|reserved_200018|>",
+]
+
+
 def records():
     """The texts both sides are asked about."""
     from gen_vectors import TEXTS
 
-    out = list(TEXTS)
+    out = list(TEXTS) + CONTROL_WORDS
     rng = random.Random(20261106)
     for _ in range(200):
         n = rng.randrange(0, 24)

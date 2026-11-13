@@ -248,6 +248,9 @@ pub fn Tokenizer::o200k(
 
 ///|
 /// The tokens of `r50k_base`, given the table of ranks that encoding uses.
+///
+/// `gpt2` and `p50k_base` are the same split and the same one reserved token
+/// over their own tables, so they read through this constructor too.
 pub fn Tokenizer::r50k(
   ranks~ : @vocab.Ranks,
   policy~ : @special.Policy = @special.Allow,
@@ -256,6 +259,22 @@ pub fn Tokenizer::r50k(
     ranks~,
     split=@split.Gpt2,
     specials=@special.r50k_base(),
+    policy~,
+  )
+}
+
+///|
+/// The tokens of `o200k_harmony`, given the table of ranks `o200k_base`
+/// publishes: the same split and the same table, with the control words the
+/// harmony chat format writes.
+pub fn Tokenizer::o200k_harmony(
+  ranks~ : @vocab.Ranks,
+  policy~ : @special.Policy = @special.Allow,
+) -> Tokenizer raise Refused {
+  Tokenizer::byte_bpe(
+    ranks~,
+    split=@split.O200k,
+    specials=@special.o200k_harmony(),
     policy~,
   )
 }

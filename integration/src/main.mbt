@@ -73,8 +73,12 @@ fn published(name : String, path : String) -> @moontoken.Tokenizer raise {
   match name {
     "cl100k" => @moontoken.Tokenizer::cl100k(ranks~, policy=@special.Allow)
     "o200k" => @moontoken.Tokenizer::o200k(ranks~, policy=@special.Allow)
-    "r50k" => @moontoken.Tokenizer::r50k(ranks~, policy=@special.Allow)
-    _ => @moontoken.Tokenizer::p50k_edit(ranks~, policy=@special.Allow)
+    "harmony" =>
+      @moontoken.Tokenizer::o200k_harmony(ranks~, policy=@special.Allow)
+    "p50k_edit" =>
+      @moontoken.Tokenizer::p50k_edit(ranks~, policy=@special.Allow)
+    // `gpt2` and `p50k_base` are `r50k_base`'s rules over their own tables.
+    _ => @moontoken.Tokenizer::r50k(ranks~, policy=@special.Allow)
   }
 }
 

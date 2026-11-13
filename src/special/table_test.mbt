@@ -76,3 +76,25 @@ test "a token before a character outside the basic plane is found" {
     table.find("<|endoftext|>\u{1F1E6}<|endoftext|>"[:], 14) is Some(_),
   )
 }
+
+///|
+/// The harmony encoding is `o200k_base` over the same table with a thousand
+/// spellings reserved beside it: ten that mean something and the placeholders
+/// between them, each at the id its name carries.
+test "the harmony encoding reserves its control words and placeholders" {
+  let table = @special.o200k_harmony()
+  assert_eq(table.length(), 1091)
+  assert_eq(table.id("<|startoftext|>"[:]), Some(199998))
+  assert_eq(table.id("<|endoftext|>"[:]), Some(199999))
+  assert_eq(table.id("<|endofprompt|>"[:]), Some(200018))
+  assert_eq(table.id("<|message|>"[:]), Some(200008))
+  assert_eq(table.id("<|reserved_200004|>"[:]), Some(200004))
+  assert_eq(table.id("<|reserved_201087|>"[:]), Some(201087))
+  // A named control word takes its id; no placeholder is spelled over it.
+  assert_eq(table.id("<|reserved_200006|>"[:]), None)
+  assert_eq(table.text(200006), Some("<|start|>"))
+  // The one id the vocabulary spells twice: the name was there first, the
+  // placeholder over the same id is kept as an alias.
+  assert_eq(table.id("<|reserved_200018|>"[:]), Some(200018))
+  assert_eq(table.text(200018), Some("<|endofprompt|>"))
+}

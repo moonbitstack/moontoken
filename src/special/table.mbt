@@ -74,6 +74,11 @@ pub fn Table::of(pairs : Array[(String, Int32)]) -> Table {
 
 ///|
 /// Adds a spelling. An empty spelling is ignored: it would match everywhere.
+///
+/// Two spellings may share an id, which is how a vocabulary that renamed one
+/// of its placeholders keeps the old spelling readable; the first spelling
+/// added is the one the id is written back as, so the reverse direction stays
+/// single-valued.
 pub fn Table::add(self : Table, text : String, id : Int32) -> Unit {
   if text.is_empty() || self.index_of.contains(text) {
     return
@@ -82,7 +87,9 @@ pub fn Table::add(self : Table, text : String, id : Int32) -> Unit {
   self.texts.push(text)
   self.ids.push(id)
   self.index_of.set(text, index)
-  self.text_of.set(id, text)
+  if !self.text_of.contains(id) {
+    self.text_of.set(id, text)
+  }
   let key = text.at(0).to_int()
   match self.by_first.get(key) {
     Some(list) => list.push(index)
@@ -230,6 +237,41 @@ pub fn cl100k_base() -> Table {
 /// The special tokens of `o200k_base`.
 pub fn o200k_base() -> Table {
   Table::of([("<|endoftext|>", 199999), ("<|endofprompt|>", 200018)])
+}
+
+///|
+/// The special tokens of `o200k_harmony`, the encoding the harmony chat format
+/// writes its control words with over the `o200k_base` table.
+///
+/// Ten spellings carry meaning and the rest of the range the format reserves is
+/// spelled `<|reserved_NNNNNN|>`: a message written before a control word had a
+/// name still decodes, rather than the id falling off the end of the vocabulary.
+/// Id 200018 is both — `<|endofprompt|>` was named first, and the placeholder
+/// over the same id is kept as an alias, which is the one place a spelling and
+/// its id do not pair up.
+pub fn o200k_harmony() -> Table {
+  let table = o200k_base()
+  let named : Array[(String, Int32)] = [
+    ("<|startoftext|>", 199998),
+    ("<|return|>", 200002),
+    ("<|constrain|>", 200003),
+    ("<|channel|>", 200005),
+    ("<|start|>", 200006),
+    ("<|end|>", 200007),
+    ("<|message|>", 200008),
+    ("<|call|>", 200012),
+  ]
+  for pair in named {
+    let (text, id) = pair
+    table.add(text, id)
+  }
+  for id = 200000; id <= 201087; id = id + 1 {
+    if table.text(id) is None {
+      table.add("<|reserved_\{id}|>", id)
+    }
+  }
+  table.add("<|reserved_200018|>", 200018)
+  table
 }
 
 ///|

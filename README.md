@@ -49,7 +49,7 @@ to it.
 
 | Call | What it does |
 |:--|:--|
-| `Tokenizer::cl100k(ranks~)` | `cl100k_base`: its split, its reserved tokens, over the table you supply. `::o200k`, `::r50k` and `::p50k_edit` are the same call for the other published encodings. |
+| `Tokenizer::cl100k(ranks~)` | `cl100k_base`: its split, its reserved tokens, over the table you supply. `::o200k`, `::o200k_harmony`, `::r50k` and `::p50k_edit` are the same call for the other published encodings; `gpt2` and `p50k_base` are `::r50k`'s rules over their own tables. |
 | `Tokenizer::byte_bpe(ranks~, split~)` | A table with a split of your own: any rule in `split`, or a sequence of them. |
 | `Tokenizer::of_proto(bytes)` | A SentencePiece `.model` file, unigram or BPE, read whole. |
 | `Tokenizer::parse(text)` | A `tokenizer.json` document. `::of` takes the same thing as a `Json` you already parsed. |
@@ -83,9 +83,10 @@ have, and `Disallowed(what, at)` a reserved spelling a policy refused.
 
 Three families of vocabulary, each with its own entry point:
 
-- **Byte-level BPE.** `Tokenizer::cl100k`, `::o200k`, `::r50k`, `::p50k_edit`
-  for the published encodings, or `::byte_bpe` with a `split` and a policy you
-  choose.
+- **Byte-level BPE.** `Tokenizer::cl100k`, `::o200k`, `::o200k_harmony`,
+  `::r50k`, `::p50k_edit` for the published encodings, or `::byte_bpe` with a
+  `split` and a policy you choose. `gpt2` and `p50k_base` share `r50k`'s split
+  and its one reserved token, so they read through `::r50k` too.
 - **SentencePiece.** `Tokenizer::of_proto` reads a `.model` file, unigram or
   BPE. The trie, the normalisation rules, the byte fallback and the
   user-defined symbols all come from the file; nothing is assumed.
@@ -136,16 +137,17 @@ and requires the working tree to stay clean. A vector that no longer matches its
 reference is worse than no vector at all.
 
 **Live differential.** `scripts/diff_reference.py` asks the references again,
-now, for 242 records: the texts the vectors use plus 200 random strings over the
-characters the patterns treat specially, astral planes included. Every record is
-compared in both directions through the bench module under `integration/`.
+now, for 249 records: the texts the vectors use, the control words of a chat
+format, and 200 random strings over the characters the patterns treat
+specially, astral planes included. Every record is compared in both directions
+through the bench module under `integration/`.
 
 | Reference | Encoders | Comparisons | Agreeing |
 |:--|--:|--:|--:|
-| `tiktoken` 0.14.0 | 4 | 1936 | 1936 |
-| `sentencepiece` 0.2.3 | 3 | 1452 | 1452 |
-| `tokenizers` 0.23.1 | 2 | 968 | 968 |
-| **Total** | **9** | **4356** | **4356** |
+| `tiktoken` 0.14.0 | 6 | 2988 | 2988 |
+| `sentencepiece` 0.2.3 | 3 | 1494 | 1494 |
+| `tokenizers` 0.23.1 | 2 | 996 | 996 |
+| **Total** | **11** | **5478** | **5478** |
 
 Three references rather than one, because none of them covers all three
 formats, and a format read by one implementation only is a format that drifts.
@@ -157,13 +159,18 @@ pip install tiktoken==0.14.0 sentencepiece==0.2.3 tokenizers==0.23.1
 python scripts/diff_reference.py --prepare
 ```
 
-**Mutation.** Two deliberate breaks, to check that the tests are load-bearing.
-Taking the highest rank instead of the lowest in the merge loop fails three
-tests: `cl100k_base agrees with the reference vectors`, `o200k_base agrees with
-the reference vectors`, and `reserved tokens follow the policy`. Taking the
-first reserved spelling that matches instead of the longest fails two:
-`the longest reserved token wins` and `the longest spelling at a position is
-found`. Both were reverted.
+**Mutation.** Five deliberate breaks, to check that the tests are load-bearing;
+each was made, run, and reverted. Taking the highest rank instead of the lowest
+in the merge loop fails three tests: `cl100k_base agrees with the reference
+vectors`, `o200k_base agrees with the reference vectors`, and `reserved tokens
+follow the policy`. Taking the first reserved spelling that matches instead of
+the longest fails four: `the policy a tokenizer carries can be replaced`,
+`only the spellings named are taken as tokens`, `the longest reserved token
+wins`, and `the longest spelling at a position is found`. Requiring base64
+padding fails `a token without its padding is read`. Letting the second spelling
+of an id overwrite the first fails `the harmony encoding reserves its control
+words and placeholders`. Reading the document as a lenient dialect fails
+`text that is not one strict JSON document is refused`.
 
 No test is skipped, so there is nothing to report as not passing.
 

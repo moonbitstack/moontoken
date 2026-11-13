@@ -243,3 +243,17 @@ test "an id outside the vocabulary is refused by number" {
     _ => panic()
   }
 }
+
+///|
+/// The harmony encoding takes its control words as one token each, at the ids
+/// the published vocabulary gives them, and gives one back as its spelling.
+test "the harmony control words are the ids the encoding reserves" {
+  let tokenizer = @moontoken.Tokenizer::o200k_harmony(ranks=specimen())
+  assert_eq(tokenizer.encode("<|start|>"), [200006])
+  assert_eq(tokenizer.encode("<|reserved_200004|>"), [200004])
+  assert_eq(tokenizer.encode("<|start|>user<|message|>"), [
+    200006, 117, 115, 101, 114, 200008,
+  ])
+  assert_eq(tokenizer.token_bytes(200012), Some(b"<|call|>"))
+  assert_eq(tokenizer.decode([200006, 200007]), "<|start|><|end|>")
+}
