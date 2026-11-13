@@ -25,9 +25,11 @@ fn encode(table : String, text : String) -> Array[Int32] raise {
 }
 ```
 
-`Tokenizer::o200k`, `::r50k` and `::p50k_edit` are the other three. For a table
-of your own, build an `@vocab.Ranks` from pairs — it must carry every one of the
-256 byte values, and `from_pairs` refuses a table that does not.
+`Tokenizer::o200k`, `::o200k_harmony`, `::r50k` and `::p50k_edit` are the other
+published encodings; `gpt2` and `p50k_base` are `r50k`'s rules over their own
+tables. For a table of your own, build an `@vocab.Ranks` from pairs — it must
+carry every one of the 256 byte values, and `from_pairs` refuses a table that
+does not.
 
 ## Count before you send
 
@@ -70,5 +72,8 @@ error rather than assuming the vocabulary was read.
   them. Stream through `decode_bytes` when the input was not text.
 - **Ids from another table are not yours.** `Refused::Missing` carries the first
   id the table does not have.
-- **One error type.** Every call raises `@moontoken.Refused`, with `at` for an
-  offset, `got`/`want` for values, and `limit` for a cap.
+- **One error type.** Every call raises `@moontoken.Refused`:
+  `Malformed(what, at)` for a format that does not parse, `Absent(name)` for
+  something a file should have carried, `Unsupported(what)` for a format this
+  reader does not implement, `Missing(id)` for an id the vocabulary does not
+  have, and `Disallowed(what, at)` for a reserved spelling a policy refused.

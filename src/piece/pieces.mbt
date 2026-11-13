@@ -127,9 +127,6 @@ pub fn Pieces::new(
 }
 
 ///|
-/// The byte a `<0xNN>` piece stands for.
-
-///|
 /// The byte a `<0xNN>` spelling stands for, when it is one.
 pub fn byte_of_piece(text : Bytes) -> Int32? {
   if text.length() != 6 {
