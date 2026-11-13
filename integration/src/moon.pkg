@@ -1,0 +1,21 @@
+// The program the conformance runs drive: this library against a reference
+// implementation, through a text protocol. `scripts/diff_reference.py` starts
+// it and compares what it prints with what the reference prints.
+//
+// Native only: it reads and writes files, and its whole point is to run on a
+// machine next to the reference, not in a browser.
+pkgtype(kind: "executable")
+
+supported_targets = "native"
+
+import {
+  "moonbitstack/moontoken",
+  "moonbitstack/moontoken/vocab",
+  "moonbitstack/moontoken/split",
+  "moonbitstack/moontoken/special",
+  "moonbitstack/moonbase/base16",
+  "moonbitlang/x/fs",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/core/encoding/utf8",
+}

@@ -138,7 +138,7 @@ reference is worse than no vector at all.
 **Live differential.** `scripts/diff_reference.py` asks the references again,
 now, for 242 records: the texts the vectors use plus 200 random strings over the
 characters the patterns treat specially, astral planes included. Every record is
-compared in both directions through `src/examples/03-conformance`.
+compared in both directions through the bench module under `integration/`.
 
 | Reference | Encoders | Comparisons | Agreeing |
 |:--|--:|--:|--:|

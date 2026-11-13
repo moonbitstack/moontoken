@@ -4,3 +4,7 @@
 .git/
 _build/
 target/
+# The conformance bench is a module of its own so that `moonbitlang/x`, which it
+# reads files with, is not a dependency of the library.
+integration/
+moon.work

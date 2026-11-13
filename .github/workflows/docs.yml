@@ -43,7 +43,7 @@ jobs:
           moon update
           moon build --target js --release src/examples/browser
           mkdir -p docs/engine
-          cp _build/js/release/build/examples/browser/browser.js docs/engine/moontoken.js
+          cp _build/js/release/build/moonbitstack/moontoken/examples/browser/browser.js docs/engine/moontoken.js
 
       - name: the reference page follows the code
         run: |

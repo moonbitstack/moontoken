@@ -51,5 +51,4 @@ import {
   "moonbitstack/moonucd@0.1.4",
   "moonbitstack/moonjson@0.5.0",
   "moonbitstack/moonbase@0.5.0",
-  "moonbitlang/x@0.5.7",
 }

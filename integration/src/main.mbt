@@ -26,18 +26,6 @@
 // reports as an error for that record too.
 
 ///|
-fn hex_of(bytes : Bytes) -> String {
-  let digits = "0123456789abcdef"
-  let out = StringBuilder()
-  for i = 0; i < bytes.length(); i = i + 1 {
-    let b = bytes[i].to_int() & 0xFF
-    out.write_char(digits[(b >> 4) & 15].unsafe_to_char())
-    out.write_char(digits[b & 15].unsafe_to_char())
-  }
-  out.to_string()
-}
-
-///|
 fn ids_of(record : StringView) -> Array[Int32] {
   let ids : Array[Int32] = []
   for part in record.split(" ") {
@@ -71,7 +59,7 @@ fn split_lines(rule : @split.Split, records : Iter[StringView]) -> Unit {
     let mut separator = ""
     for word in rule.pieces(record) {
       out.write_string(separator)
-      out.write_string(hex_of(@utf8.encode(word)))
+      out.write_string(@base16.encode(@utf8.encode(word)))
       separator = " "
     }
     println(out.to_string())
@@ -134,7 +122,7 @@ fn main raise {
       }
     } else {
       match (Ok(tokenizer.decode(ids_of(record))) catch { _ => Err(()) }) {
-        Ok(text) => println(hex_of(@utf8.encode(text)))
+        Ok(text) => println(@base16.encode(@utf8.encode(text)))
         Err(_) => println("!")
       }
     }

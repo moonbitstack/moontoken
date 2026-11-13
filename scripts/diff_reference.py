@@ -16,9 +16,9 @@ Three references, because no single one covers the formats this library reads:
 - `tokenizers` is where `tokenizer.json` comes from, for both of the model
   types the format names.
 
-Records cross the boundary as text: `03-conformance` reads a file of records
-separated by U+001E and prints one line of ids (or hex of the decoded text)
-per record.
+Records cross the boundary as text: the bench in `integration/` reads a file of
+records separated by U+001E and prints one line of ids (or hex of the decoded
+text) per record.
 
     python scripts/diff_reference.py --prepare   # fetch tables, train models
     python scripts/diff_reference.py             # compare
@@ -37,18 +37,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # The program the comparisons drive, as `moon build --target native` leaves it.
 # Windows appends an extension and the other platforms do not.
 _BUILT = os.path.join(
-    ROOT, "_build", "native", "debug", "build", "examples", "03-conformance"
+    ROOT, "_build", "native", "debug", "build", "moonbitstack", "moontoken-conformance"
 )
 BINARY = next(
     (
         path
         for path in (
-            os.path.join(_BUILT, "03-conformance.exe"),
-            os.path.join(_BUILT, "03-conformance"),
+            os.path.join(_BUILT, "moontoken-conformance.exe"),
+            os.path.join(_BUILT, "moontoken-conformance"),
         )
         if os.path.exists(path)
     ),
-    os.path.join(_BUILT, "03-conformance.exe"),
+    os.path.join(_BUILT, "moontoken-conformance.exe"),
 )
 WORK = os.path.join(ROOT, ".cache", "diff")
 
